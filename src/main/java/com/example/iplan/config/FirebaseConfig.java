@@ -7,27 +7,20 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 @Configuration
 public class FirebaseConfig {
 
     @PostConstruct
-    public void init() {
-        try {
-            // 환경 변수에서 파일 경로를 가져옴, 기본값은 Docker 컨테이너 내부 경로
-            String firebaseConfigPath = System.getenv("FIREBASE_CONFIG_PATH");
-            if (firebaseConfigPath == null || firebaseConfigPath.isEmpty()) {
-                firebaseConfigPath = "/app/serviceAccountKey.json"; // Docker 컨테이너 내부 경로
-            }
-
-            // Firebase 초기화
-            FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
+    public void init(){
+        try{
+            FileInputStream serviceAccount =
+                    new FileInputStream("src/main/resources/iplan-firebase.json");
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
             FirebaseApp.initializeApp(options);
-        } catch (IOException e) {
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
