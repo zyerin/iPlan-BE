@@ -16,7 +16,7 @@ public class FirebaseConfig {
         try {
             String firebaseConfigPath = System.getenv("FIREBASE_CONFIG_PATH");
             if (firebaseConfigPath == null) {
-                firebaseConfigPath = "src/main/resources/iplan-firebase.json";
+                firebaseConfigPath = "/app/iplan-firebase.json";
             }
 
             FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
