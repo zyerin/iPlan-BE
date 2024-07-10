@@ -1,5 +1,5 @@
 # jdk17 Image Start
-FROM openjdk:21
+FROM openjdk:17
 
 # 작업 디렉토리 설정
 WORKDIR /app

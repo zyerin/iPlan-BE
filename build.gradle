@@ -19,17 +19,16 @@ configurations {
 	}
 }
 
-configurations.all {
-	exclude group: 'commons-logging', module: 'common-logging'
-}
-
 repositories {
 	mavenCentral()
 }
 
 dependencies {
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
-	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter' {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	implementation 'org.springframework:spring-jcl'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
@@ -41,8 +40,4 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-jar {
-	enabled = false
 }
