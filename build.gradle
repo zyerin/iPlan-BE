@@ -19,6 +19,10 @@ configurations {
 	}
 }
 
+configurations.all {
+	exclude group: 'commons-logging', module: 'common-logging'
+}
+
 repositories {
 	mavenCentral()
 }
