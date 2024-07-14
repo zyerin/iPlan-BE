@@ -12,15 +12,19 @@ import java.io.FileInputStream;
 public class FirebaseConfig {
 
     @PostConstruct
-    public void init(){
-        try{
-            FileInputStream serviceAccount =
-                    new FileInputStream("src/main/resources/iplan-firebase.json");
+    public void init() {
+        try {
+            String firebaseConfigPath = System.getenv("FIREBASE_CONFIG_PATH");
+            if (firebaseConfigPath == null) {
+                firebaseConfigPath = "/app/iplan-firebase.json";
+            }
+
+            FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
             FirebaseApp.initializeApp(options);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
