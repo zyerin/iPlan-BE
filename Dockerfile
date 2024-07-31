@@ -11,7 +11,7 @@ ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar
 
 # Firebase 서비스 계정 파일 복사
-COPY src/main/resources/iplan-firebase.json /app/iplan-firebase.json
+COPY ./src/main/resources/iplan-firebase.json /app/iplan-firebase.json
 
 # 실행 명령어
 ENTRYPOINT ["java", "-jar", "app.jar"]
