@@ -7,25 +7,23 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 @Configuration
 public class FirebaseConfig {
 
     @PostConstruct
-    public void init() {
-        try {
-            String firebaseConfigPath = System.getenv("FIREBASE_CONFIG_PATH");
-            if (firebaseConfigPath == null) {
-                firebaseConfigPath = "/app/iplan-firebase.json";
-            }
+    public void firestore() throws IOException {
 
-            FileInputStream serviceAccount = new FileInputStream(firebaseConfigPath);
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-            FirebaseApp.initializeApp(options);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        FileInputStream serviceAccount =
+                new FileInputStream("/app/iplan-firebase.json");
+
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setDatabaseUrl("https://iplan-18901-default-rtdb.firebaseio.com")
+                .build();
+
+        FirebaseApp.initializeApp(options);
+
     }
 }

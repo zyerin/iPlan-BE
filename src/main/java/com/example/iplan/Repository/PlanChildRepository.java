@@ -7,7 +7,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PlanChildRepository extends DefaultFirebaseDBRepository<PlanChild> {
 
-    public PlanChildRepository(Class<PlanChild> entityClass, String collectionName) {
-        super(entityClass, collectionName);
+    public PlanChildRepository() {
+        setEntityClass(PlanChild.class);
+        setCollectionName("PlanChild");
     }
 }
