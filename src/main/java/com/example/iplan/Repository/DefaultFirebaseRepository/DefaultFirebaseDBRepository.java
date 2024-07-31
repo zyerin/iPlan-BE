@@ -2,28 +2,33 @@ package com.example.iplan.Repository.DefaultFirebaseRepository;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
+@Component
 @Repository
 public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, String> {
 
-    @Autowired
-    private Firestore firestore;
+    private Class<T> entityClass;
+    private String collectionName;
 
-    private final Class<T> entityClass;
-    private final String collectionName;
-
-    public DefaultFirebaseDBRepository(Class<T> entityClass, String collectionName){
+    public void setEntityClass(Class<T> entityClass){
         this.entityClass = entityClass;
+    }
+
+    public void setCollectionName(String collectionName){
         this.collectionName = collectionName;
     }
 
     @Override
     public void save(T entity) throws ExecutionException, InterruptedException {
+        Firestore firestore = FirestoreClient.getFirestore();
         //Firestore 인스턴스에서 지정한 collectionName을 참조하는 CollectionReference객체를 가져온다
         //이 객체는 지정된 컬렉션의 문서에 접근하거나 조작할 수 있는 메서드 제공
         CollectionReference collection = firestore.collection(collectionName);
@@ -33,6 +38,7 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
 
     @Override
     public void update(T entity) throws ExecutionException, InterruptedException {
+        Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<WriteResult> result = collection.document(getDocumentId(entity)).set(entity);
         result.get();
@@ -40,6 +46,7 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
 
     @Override
     public void delete(String id) throws ExecutionException, InterruptedException {
+        Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<WriteResult> result = collection.document(id).delete();
         result.get();
@@ -47,6 +54,7 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
 
     @Override
     public T findById(String id) throws ExecutionException, InterruptedException {
+        Firestore firestore = FirestoreClient.getFirestore();
         //어떤 컬렉션인지 객체 가져옴
         CollectionReference collection = firestore.collection(collectionName);
         //id에 해당하는 문서(데이터)를 가져온다
