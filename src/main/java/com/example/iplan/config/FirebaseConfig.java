@@ -20,7 +20,6 @@ public class FirebaseConfig {
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://iplan-18901-default-rtdb.firebaseio.com")
                 .build();
 
         FirebaseApp.initializeApp(options);
