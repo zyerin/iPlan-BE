@@ -30,16 +30,13 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        
-    - name: Navigate to project directory
-      run: cd BE
 
     - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
+      run: chmod +x ./BE/gradlew
 
     # 2. Spring Boot 애플리케이션 빌드
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./BE/gradlew build
 
     # 3. Docker 이미지 빌드
     - name: docker image build
