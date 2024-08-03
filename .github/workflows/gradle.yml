@@ -39,7 +39,7 @@ jobs:
         cd ./src/main/resources
         ls -a
         touch ./iplan-firebase.json
-        echo "${{ secrets.FIREBASE_KEY }}" > $HOME/firebase/iplan-firebase.json
+        echo "${{ secrets.FIREBASE_KEY }}" > ./iplan-firebase.json
       shell: bash
 
     # 2. Spring Boot 애플리케이션 빌드
