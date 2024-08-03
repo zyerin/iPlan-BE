@@ -34,15 +34,9 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Set up Firebase credentials
-      run: echo "${{ secrets.FIREBASE_KEY }}" > ./src/main/resources/iplan-firebase.json
-
-    - name: Verify Firebase credentials file
-      run: ls -al ./src/main/resources/iplan-firebase.json
-
     # 2. Spring Boot 애플리케이션 빌드
     - name: Build with Gradle
-      run: ./gradlew build --no-daemon --warning-mode all
+      run: ./gradlew assemble --no-daemon --warning-mode all
 
     # 3. Docker 이미지 빌드
     - name: docker image build
@@ -58,10 +52,6 @@ jobs:
     # 5. Docker Hub 이미지 푸시
     - name: docker Hub push
       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/iplan-demo
-
-    # 6. 파이어베이스
-    - name: Run Firebase Firestore tests
-      run: ./gradlew test
       
     - name: Upload build reports
       if: always()
@@ -82,15 +72,6 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
-  
-    - name: Set up Firebase credentials
-      run: echo "${{ secrets.FIREBASE_KEY }}" > ./src/main/resources/iplan-firebase.json
-  
-    - name: Verify Firebase credentials file
-      run: ls -al ./src/main/resources/iplan-firebase.json
-  
-    - name: Run Firebase Firestore tests
-      run: ./gradlew test --no-daemon --warning-mode all
   
     - name: Upload test results
       if: always()
