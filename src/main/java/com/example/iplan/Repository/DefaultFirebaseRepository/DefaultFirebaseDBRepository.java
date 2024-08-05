@@ -3,12 +3,11 @@ package com.example.iplan.Repository.DefaultFirebaseRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Component
@@ -32,7 +31,8 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         //Firestore 인스턴스에서 지정한 collectionName을 참조하는 CollectionReference객체를 가져온다
         //이 객체는 지정된 컬렉션의 문서에 접근하거나 조작할 수 있는 메서드 제공
         CollectionReference collection = firestore.collection(collectionName);
-        ApiFuture<WriteResult> result = collection.document(getDocumentId(entity)).set(entity);
+
+        ApiFuture<DocumentReference> result = collection.add(entity);
         result.get(); // 작성이 완료될때까지 Block
     }
 
@@ -64,6 +64,21 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         //문서(데이터)가 있다면 entity 객체로 가져온다.
         if(documentSnapshot.exists()){
             return documentSnapshot.toObject(entityClass);
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<T> findAll() throws ExecutionException, InterruptedException{
+        Firestore firestore = FirestoreClient.getFirestore();
+
+        CollectionReference collection = firestore.collection(collectionName);
+        ApiFuture<QuerySnapshot> apiFutureList = collection.get();
+        QuerySnapshot querySnapshot = apiFutureList.get();
+
+        if(querySnapshot != null){
+            return querySnapshot.toObjects(entityClass);
         }
 
         return null;
