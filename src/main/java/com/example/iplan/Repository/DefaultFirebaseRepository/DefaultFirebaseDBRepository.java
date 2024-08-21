@@ -70,11 +70,13 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
     }
 
     @Override
-    public List<T> findAll() throws ExecutionException, InterruptedException{
+    public List<T> findAll(String user_id) throws ExecutionException, InterruptedException{
         Firestore firestore = FirestoreClient.getFirestore();
 
         CollectionReference collection = firestore.collection(collectionName);
-        ApiFuture<QuerySnapshot> apiFutureList = collection.get();
+        ApiFuture<QuerySnapshot> apiFutureList = collection
+                .whereEqualTo("user_id", user_id)
+                .get();
         QuerySnapshot querySnapshot = apiFutureList.get();
 
         if(querySnapshot != null){
