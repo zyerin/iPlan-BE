@@ -17,25 +17,26 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
     private Class<T> entityClass;
     private String collectionName;
 
+    // Entity 클래스 설정 메서드
     public void setEntityClass(Class<T> entityClass){
         this.entityClass = entityClass;
     }
 
+    // 컬렉션 이름 설정 메서드
     public void setCollectionName(String collectionName){
         this.collectionName = collectionName;
     }
 
+    // Entity 저장 메서드
     @Override
     public void save(T entity) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
-        //Firestore 인스턴스에서 지정한 collectionName을 참조하는 CollectionReference객체를 가져온다
-        //이 객체는 지정된 컬렉션의 문서에 접근하거나 조작할 수 있는 메서드 제공
         CollectionReference collection = firestore.collection(collectionName);
-
         ApiFuture<DocumentReference> result = collection.add(entity);
         result.get(); // 작성이 완료될때까지 Block
     }
 
+    // Entity 업데이트 메서드
     @Override
     public void update(T entity) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
@@ -44,6 +45,7 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         result.get();
     }
 
+    // Entity 삭제 메서드
     @Override
     public void delete(String id) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
@@ -52,16 +54,14 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         result.get();
     }
 
+    // ID로 Entity 검색 메서드
     @Override
     public T findById(String id) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
-        //어떤 컬렉션인지 객체 가져옴
         CollectionReference collection = firestore.collection(collectionName);
-        //id에 해당하는 문서(데이터)를 가져온다
         ApiFuture<DocumentSnapshot> apiFuture = collection.document(id).get();
         DocumentSnapshot documentSnapshot = apiFuture.get();
 
-        //문서(데이터)가 있다면 entity 객체로 가져온다.
         if(documentSnapshot.exists()){
             return documentSnapshot.toObject(entityClass);
         }
@@ -69,10 +69,10 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         return null;
     }
 
+    // 특정 사용자 ID로 모든 Entity 검색 메서드
     @Override
     public List<T> findAll(String user_id) throws ExecutionException, InterruptedException{
         Firestore firestore = FirestoreClient.getFirestore();
-
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<QuerySnapshot> apiFutureList = collection
                 .whereEqualTo("user_id", user_id)
@@ -93,10 +93,10 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
      * @return ID값
      */
     private String getDocumentId(T entity) {
-        try{
+        try {
             Method getIdMethod = entity.getClass().getMethod("getId");
             return (String) getIdMethod.invoke(entity);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Failed to get document ID", e);
         }
     }

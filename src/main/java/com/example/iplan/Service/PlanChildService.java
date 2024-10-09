@@ -114,7 +114,7 @@ public class PlanChildService {
             response.put("message", "해당 계획과 사용자가 일치하지 않습니다.");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
+
         updateIfNotNull(planChildDTO.getTitle(), originalPlan::setTitle);
         updateIfNotNull(planChildDTO.getStart_time(), originalPlan::setStart_time);
         updateIfNotNull(planChildDTO.getEnd_time(), originalPlan::setEnd_time);
