@@ -9,7 +9,6 @@ public interface FirebaseDBRepository<T, ID> {
     void update(T entity) throws ExecutionException, InterruptedException;
     void delete(ID id) throws ExecutionException, InterruptedException;
     T findById(ID id) throws ExecutionException, InterruptedException;
-
     // 특정 ID를 기반으로 모든 엔티티를 조회하는 메서드
     List<T> findAll(ID id) throws ExecutionException, InterruptedException;
 }

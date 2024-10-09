@@ -62,6 +62,5 @@ public class PlanChildController {
     public ResponseEntity<Map<String, Object>> deletePlan(@RequestBody String documentID) throws ExecutionException, InterruptedException {
         return planChildService.DeletePlan(documentID);
     }
-
-    //특정 계획 터치시 세부사항 확인
 }
+

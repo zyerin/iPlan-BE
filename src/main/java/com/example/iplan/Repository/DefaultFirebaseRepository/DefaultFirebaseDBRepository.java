@@ -33,7 +33,7 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<DocumentReference> result = collection.add(entity);
-        result.get(); // 작성이 완료될 때까지 대기
+        result.get(); // 작성이 완료될때까지 Block
     }
 
     // Entity 업데이트 메서드
@@ -71,7 +71,7 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
 
     // 특정 사용자 ID로 모든 Entity 검색 메서드
     @Override
-    public List<T> findAll(String user_id) throws ExecutionException, InterruptedException {
+    public List<T> findAll(String user_id) throws ExecutionException, InterruptedException{
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<QuerySnapshot> apiFutureList = collection

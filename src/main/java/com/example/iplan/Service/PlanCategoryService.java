@@ -90,7 +90,6 @@ public class PlanCategoryService {
 
         if(category.isPresent()){
             PlanCategory planCategory = category.get();
-
             planCategory.setName(planCategoryDTO.getName());
 
             try{
@@ -105,8 +104,6 @@ public class PlanCategoryService {
             response.put("success", true);
             response.put("message", "계획 카테고리가 정상적으로 수정 되었습니다");
             return new ResponseEntity<>(response, HttpStatus.OK);
-
-
         }else{
             response.put("success", false);
             response.put("message", "해당 카테고리가 존재하지 않습니다.");
