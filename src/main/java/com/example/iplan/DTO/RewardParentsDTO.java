@@ -17,7 +17,7 @@ public class RewardParentsDTO {
 
     private String comment; // 부모님의 코멘트
 
-    private int grade; // 별점 (예: 1~5 사이의 점수)
+    private int grade; // 별점 (1~5 사이의 점수)
 
     private boolean is_rewarded; // 보상이 지급되었는지 여부
 }
