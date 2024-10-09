@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import com.google.cloud.firestore.Firestore;
 
 @Repository
-public class UserRepository extends DefaultFirebaseDBRepository<UserSocial> {
+public class UserSocialRepository extends DefaultFirebaseDBRepository<UserSocial> {
 
-    public UserRepository(Firestore firestore) {
+    public UserSocialRepository(Firestore firestore) {
         // super(firestore);
         setEntityClass(UserSocial.class);
         setCollectionName("User");
