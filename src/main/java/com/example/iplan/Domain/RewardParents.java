@@ -18,7 +18,7 @@ public class RewardParents {
     private String id; // Firestore 문서의 ID
 
     @NotNull
-    private String plan_id; // 아이의 계획 ID
+    private String plan_id; // 아이의 계획 ID와 매칭
 
     @NotNull
     private String user_id; // 부모님의 사용자 ID
