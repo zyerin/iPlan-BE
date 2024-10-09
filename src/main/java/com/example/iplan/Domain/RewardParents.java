@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class RewardParents {
 
     @DocumentId
-    private String id; // Firestore 문서의 ID
+    private String id; // Firestore 문서의 ID (지급한 보상의 id)
 
     @NotNull
     private String plan_id; // 아이의 계획 ID와 매칭
