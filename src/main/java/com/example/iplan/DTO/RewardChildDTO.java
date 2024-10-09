@@ -1,2 +1,25 @@
-package com.example.iplan.DTO;public class RewardChildDTO {
+package com.example.iplan.DTO;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RewardChildDTO {
+
+    private String id; // Firestore 문서의 ID
+
+    private String user_id; // 아이의 고유 ID
+
+    private String content; // 보상의 내용
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private String date; // 보상이 적용된 날짜
+
+    private String plan_id; // 보상을 지급할 plan
+
+    private boolean is_rewarded; // 보상이 지급되었는지 여부
 }
