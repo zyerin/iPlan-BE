@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class RewardChild {
 
     @DocumentId
-    private String id; // Firestore 문서의 ID
+    private String id; // Firestore 문서의 ID (보상의 id)
 
     @NotNull
     private String user_id; // 아이의 고유 ID
