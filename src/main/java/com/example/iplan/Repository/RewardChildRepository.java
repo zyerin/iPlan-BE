@@ -1,6 +1,7 @@
 package com.example.iplan.Repository;
 
-import com.example.iplan.Domain.Reward;
+import com.example.iplan.Domain.RewardChild;
+import com.example.iplan.DTO.RewardChildDTO;
 import com.example.iplan.Repository.DefaultFirebaseRepository.DefaultFirebaseDBRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
@@ -15,11 +16,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Repository
-public class RewardRepository extends DefaultFirebaseDBRepository<Reward> {
+public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChild> {
 
-    public RewardRepository() {
-        setEntityClass(Reward.class);
-        setCollectionName("rewards");
+    public RewardChildRepository() {
+        setEntityClass(RewardChild.class);
+        setCollectionName("RewardChild");
     }
 
     /**
@@ -29,9 +30,9 @@ public class RewardRepository extends DefaultFirebaseDBRepository<Reward> {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<Reward> findByUserId(String userId) throws ExecutionException, InterruptedException {
+    public List<RewardChildDTO> findByUserId(String userId) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
-        CollectionReference collection = firestore.collection("rewards");
+        CollectionReference collection = firestore.collection("RewardChild");
 
         ApiFuture<QuerySnapshot> apiFutureList = collection
                 .whereEqualTo("user_id", userId)
@@ -39,10 +40,12 @@ public class RewardRepository extends DefaultFirebaseDBRepository<Reward> {
 
         QuerySnapshot querySnapshot = apiFutureList.get();
 
-        List<Reward> rewards = new ArrayList<>();
+        List<RewardChildDTO> rewards = new ArrayList<>();
 
         for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-            rewards.add(document.toObject(Reward.class));
+            RewardChild rewardChild = document.toObject(RewardChild.class);
+            RewardChildDTO rewardChildDTO = convertToDTO(rewardChild);
+            rewards.add(rewardChildDTO);
         }
 
         return rewards;
@@ -55,23 +58,40 @@ public class RewardRepository extends DefaultFirebaseDBRepository<Reward> {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<Reward> findByDate(String userId, String targetDate) throws ExecutionException, InterruptedException {
+    public List<RewardChildDTO> findByDate(String userId, String targetDate) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
-        CollectionReference collection = firestore.collection("rewards");
+        CollectionReference collection = firestore.collection("RewardChild");
 
         ApiFuture<QuerySnapshot> apiFutureList = collection
                 .whereEqualTo("user_id", userId)
-                .whereEqualTo("postDate", targetDate)
+                .whereEqualTo("date", targetDate)
                 .get();
 
         QuerySnapshot querySnapshot = apiFutureList.get();
 
-        List<Reward> rewards = new ArrayList<>();
+        List<RewardChildDTO> rewards = new ArrayList<>();
 
         for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-            rewards.add(document.toObject(Reward.class));
+            RewardChild rewardChild = document.toObject(RewardChild.class);
+            RewardChildDTO rewardChildDTO = convertToDTO(rewardChild);
+            rewards.add(rewardChildDTO);
         }
 
         return rewards;
+    }
+
+    /**
+     * RewardChild 엔티티를 RewardChildDTO 로 변환
+     * @param rewardChild RewardChild 엔티티
+     * @return RewardChildDTO
+     */
+    private RewardChildDTO convertToDTO(RewardChild rewardChild) {
+        return RewardChildDTO.builder()
+                .id(rewardChild.getId())
+                .user_id(rewardChild.getUser_id())
+                .content(rewardChild.getContent())
+                .date(rewardChild.getDate())
+                .is_rewarded(rewardChild.is_rewarded())
+                .build();
     }
 }
