@@ -62,7 +62,7 @@ public class RewardChildService {
     }
 
     /**
-     * 보상을 ID로 검색하는 기능
+     * 보상을 ID로 조회하는 기능
      * @param id 검색할 보상의 ID
      * @return 검색된 보상 객체
      * @throws ExecutionException
