@@ -13,13 +13,13 @@ import java.util.concurrent.ExecutionException;
 // Google 로그인 및 사용자 정보를 Firestore 에 저장
 
 @Service
-public class AuthService {
+public class UserAuthSocialService {
 
     private final FirebaseAuth firebaseAuth;
     private final UserSocialRepository userRepository;
 
     @Autowired
-    public AuthService(FirebaseAuth firebaseAuth, UserSocialRepository userRepository) {
+    public UserAuthSocialService(FirebaseAuth firebaseAuth, UserSocialRepository userRepository) {
         this.firebaseAuth = firebaseAuth;
         this.userRepository = userRepository;
     }
