@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RewardParent {
+public class RewardParents {
 
     @DocumentId
     private String id; // Firestore 문서의 ID
