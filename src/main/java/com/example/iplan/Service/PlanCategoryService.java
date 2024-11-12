@@ -3,6 +3,7 @@ package com.example.iplan.Service;
 import com.example.iplan.DTO.PlanCategoryDTO;
 import com.example.iplan.Domain.PlanCategory;
 import com.example.iplan.Repository.PlanCategoryRepository;
+import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,10 +14,10 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service
+@RequiredArgsConstructor
 public class PlanCategoryService {
 
-    @Autowired
-    private PlanCategoryRepository planCategoryRepository;
+    private final PlanCategoryRepository planCategoryRepository;
 
     /**
      * 새로운 카테고리를 추가한다.
