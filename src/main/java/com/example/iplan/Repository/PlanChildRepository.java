@@ -21,6 +21,14 @@ public class PlanChildRepository extends DefaultFirebaseDBRepository<PlanChild> 
         setCollectionName("PlanChild");
     }
 
+    /**
+     * 날짜를 통해 해당 날짜의 계획을 모두 가져 온다
+     * @param user_id 유저 아이디
+     * @param targetDate 어떤 계획이 있는지 알고 싶은 날짜
+     * @return 해당 날짜 계획들(PlanChild List)
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public List<PlanChild> findByDate(String user_id, LocalDate targetDate) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
         //어떤 컬렉션인지 객체 가져옴
@@ -37,8 +45,10 @@ public class PlanChildRepository extends DefaultFirebaseDBRepository<PlanChild> 
         List<PlanChild> plans = new ArrayList<>();
 
         // 쿼리 결과의 모든 문서를 PlanChild 객체로 변환하여 리스트에 추가
-        for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-            plans.add(document.toObject(PlanChild.class));
+        if(!querySnapshot.isEmpty()) {
+            for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
+                plans.add(document.toObject(PlanChild.class));
+            }
         }
 
         return plans; // 일치하는 모든 PlanChild 문서를 포함하는 리스트 반환

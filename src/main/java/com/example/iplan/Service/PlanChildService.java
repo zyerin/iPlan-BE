@@ -2,12 +2,10 @@ package com.example.iplan.Service;
 
 import com.example.iplan.DTO.PlanChildDTO;
 import com.example.iplan.Domain.PlanChild;
+import com.example.iplan.Domain.ScreenTime;
 import com.example.iplan.Repository.PlanChildRepository;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.iplan.Repository.SetScreenTimeRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,9 +16,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 @Service
+@RequiredArgsConstructor
 public class PlanChildService {
-    @Autowired
-    private PlanChildRepository planChildRepository;
+
+    private final PlanChildRepository planChildRepository;
+    private final SetScreenTimeRepository setScreenTimeRepository;
 
     /**
      * 새로운 계획을 추가하는 기능
@@ -41,7 +41,7 @@ public class PlanChildService {
                 .memo(planPostDto.getMemo())
                 .category_id(planPostDto.getCategory_id())
                 .title(planPostDto.getTitle())
-                .postDate(planPostDto.getPost_date())
+                .date(planPostDto.getPost_date())
                 .start_time(planPostDto.getStart_time())
                 .end_time(planPostDto.getEnd_time())
                 .is_completed(planPostDto.is_completed())
@@ -153,6 +153,28 @@ public class PlanChildService {
         response.put("message", "계획이 정상적으로 삭제 되었습니다");
         return new ResponseEntity<>(response, HttpStatus.OK);
 
+    }
+
+    /**
+     * 사용자가 목표 스크린타임을 설정한다
+     * @param screenTime
+     * @return
+     */
+    public ResponseEntity<Map<String, Object>> SetScreenTime(ScreenTime screenTime){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            setScreenTimeRepository.save(screenTime);
+        }
+        catch(Exception e){
+            response.put("success", false);
+            response.put("message", "스크린 타임 설정에 실패했습니다. Error: "+ e);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        response.put("success", true);
+        response.put("message", "스크린 타임 정상적으로 설정 되었습니다");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
