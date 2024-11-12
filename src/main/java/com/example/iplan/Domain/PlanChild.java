@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.*;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -34,7 +32,7 @@ public class PlanChild {
     //카테고리 테이블의 아이디
     private List<String> category_id;
 
-    private LocalDate postDate;
+    private LocalDate date;
 
     private String memo;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

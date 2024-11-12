@@ -2,6 +2,7 @@ package com.example.iplan.Controller;
 
 import com.example.iplan.DTO.PlanChildDTO;
 import com.example.iplan.Domain.PlanChild;
+import com.example.iplan.Domain.ScreenTime;
 import com.example.iplan.Service.PlanChildService;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -62,5 +63,10 @@ public class PlanChildController {
     public ResponseEntity<Map<String, Object>> deletePlan(@RequestBody String documentID) throws ExecutionException, InterruptedException {
         return planChildService.DeletePlan(documentID);
     }
-}
 
+    @PostMapping("plan/screen-time-set")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> setScreenTime(@RequestBody ScreenTime screenTime){
+        return planChildService.SetScreenTime(screenTime);
+    }
+}
