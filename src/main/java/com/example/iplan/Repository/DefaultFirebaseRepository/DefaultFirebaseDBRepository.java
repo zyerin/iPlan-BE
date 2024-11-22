@@ -2,7 +2,7 @@ package com.example.iplan.Repository.DefaultFirebaseRepository;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import com.google.firebase.cloud.FirestoreClient;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +12,13 @@ import java.util.concurrent.ExecutionException;
 
 @Component
 @Repository
+@RequiredArgsConstructor
 public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, String> {
 
     private Class<T> entityClass;
     private String collectionName;
+
+    protected final Firestore firestore;
 
     // Entity 클래스 설정 메서드
     public void setEntityClass(Class<T> entityClass){
@@ -30,7 +33,6 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
     // Entity 저장 메서드
     @Override
     public void save(T entity) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<DocumentReference> result = collection.add(entity);
         result.get(); // 작성이 완료될때까지 Block
@@ -39,7 +41,6 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
     // Entity 업데이트 메서드
     @Override
     public void update(T entity) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<WriteResult> result = collection.document(getDocumentId(entity)).set(entity);
         result.get();
@@ -47,19 +48,17 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
 
     // Entity 삭제 메서드
     @Override
-    public void delete(String id) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
+    public void delete(T entity) throws ExecutionException, InterruptedException {
         CollectionReference collection = firestore.collection(collectionName);
-        ApiFuture<WriteResult> result = collection.document(id).delete();
+        ApiFuture<WriteResult> result = collection.document(getDocumentId(entity)).delete();
         result.get();
     }
 
     // ID로 Entity 검색 메서드
     @Override
-    public T findById(String id) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
+    public T findEntityByDocumentId(String document_id) throws ExecutionException, InterruptedException {
         CollectionReference collection = firestore.collection(collectionName);
-        ApiFuture<DocumentSnapshot> apiFuture = collection.document(id).get();
+        ApiFuture<DocumentSnapshot> apiFuture = collection.document(document_id).get();
         DocumentSnapshot documentSnapshot = apiFuture.get();
 
         if(documentSnapshot.exists()){
@@ -71,8 +70,7 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
 
     // 특정 사용자 ID로 모든 Entity 검색 메서드
     @Override
-    public List<T> findAll(String user_id) throws ExecutionException, InterruptedException{
-        Firestore firestore = FirestoreClient.getFirestore();
+    public List<T> findEntityAll(String user_id) throws ExecutionException, InterruptedException{
         CollectionReference collection = firestore.collection(collectionName);
         ApiFuture<QuerySnapshot> apiFutureList = collection
                 .whereEqualTo("user_id", user_id)
