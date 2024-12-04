@@ -28,6 +28,7 @@ dependencies {
 	implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.2.0'
 	implementation 'com.google.cloud:google-cloud-firestore:3.23.0'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation('org.springframework.boot:spring-boot-starter') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
