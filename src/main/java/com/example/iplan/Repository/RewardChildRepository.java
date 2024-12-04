@@ -23,13 +23,7 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
         setCollectionName("RewardChild");
     }
 
-    /**
-     * 특정 사용자 ID와 일치하는 보상 목록을 반환
-     * @param userId 사용자 ID
-     * @return 해당 사용자의 보상 목록
-     * @throws ExecutionException
-     * @throws InterruptedException
-     */
+    // 특정 사용자 ID와 일치하는 보상 목록을 반환
     public List<RewardChildDTO> findByUserId(String userId) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardChild");
@@ -51,13 +45,7 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
         return rewards;
     }
 
-    /**
-     * 특정 날짜와 일치하는 보상 목록을 반환
-     * @param targetDate 특정 날짜
-     * @return 해당 날짜의 보상 목록
-     * @throws ExecutionException
-     * @throws InterruptedException
-     */
+    // 특정 날짜와 일치하는 보상 목록을 반환
     public List<RewardChildDTO> findByDate(String userId, String targetDate) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardChild");
@@ -80,18 +68,17 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
         return rewards;
     }
 
-    /**
-     * RewardChild 엔티티를 RewardChildDTO 로 변환
-     * @param rewardChild RewardChild 엔티티
-     * @return RewardChildDTO
-     */
+    // RewardChild 엔티티를 RewardChildDTO 로 변환
     private RewardChildDTO convertToDTO(RewardChild rewardChild) {
         return RewardChildDTO.builder()
                 .id(rewardChild.getId())
                 .user_id(rewardChild.getUser_id())
                 .content(rewardChild.getContent())
                 .date(rewardChild.getDate())
-                .is_rewarded(rewardChild.is_rewarded())
+                .rewarded(rewardChild.isRewarded())
+                .plan_id(rewardChild.getPlan_id())
+                .success(rewardChild.isSuccess())
+                .rewarded(rewardChild.isRewarded())
                 .build();
     }
 }
