@@ -39,7 +39,7 @@ public class RewardParentsService {
 
         try {
             // 1. RewardChild 엔티티에서 planId 추출
-            RewardChild reward = rewardChildRepository.findById(rewardId);
+            RewardChild reward = rewardChildRepository.findEntityByDocumentId(rewardId);
             if (reward == null) {
                 response.put("success", false);
                 response.put("message", "해당 ID의 보상을 찾을 수 없습니다.");
@@ -81,7 +81,7 @@ public class RewardParentsService {
      */
     public RewardParents getRewardParents(String id) throws ExecutionException, InterruptedException {
         try {
-            return rewardParentsRepository.findById(id);
+            return rewardParentsRepository.findEntityByDocumentId(id);
         } catch (Exception e) {
             throw new ExecutionException("보상 조회에 실패했습니다. Error: " + e.getMessage(), e);
         }
@@ -98,7 +98,7 @@ public class RewardParentsService {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            RewardParents existingRewardParents = rewardParentsRepository.findById(rewardParentsDTO.getId());
+            RewardParents existingRewardParents = rewardParentsRepository.findEntityByDocumentId(rewardParentsDTO.getId());
 
             if (existingRewardParents == null) {
                 response.put("success", false);
