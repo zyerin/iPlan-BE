@@ -55,23 +55,23 @@ public class RewardChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @PatchMapping
+    @PatchMapping("/{user_id}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> updateReward(@RequestBody @NotNull RewardChildDTO reward) throws ExecutionException, InterruptedException {
-        return rewardChildService.updateReward(reward);
+    public ResponseEntity<Map<String, Object>> updateReward(@PathVariable String user_id, @RequestBody @NotNull RewardChildDTO reward) throws ExecutionException, InterruptedException {
+        return rewardChildService.updateReward(user_id, reward);
     }
 
     /**
      * 보상을 삭제
-     * @param id 보상 ID
+     * @param documentID 보상 ID
      * @return 성공 여부 및 오류 메시지
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{documentID}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteReward(@PathVariable String id) throws ExecutionException, InterruptedException {
-        return rewardChildService.deleteReward(id);
+    public ResponseEntity<Map<String, Object>> deleteReward(@PathVariable String documentID) throws ExecutionException, InterruptedException {
+        return rewardChildService.deleteReward(documentID);
     }
 
     /**
