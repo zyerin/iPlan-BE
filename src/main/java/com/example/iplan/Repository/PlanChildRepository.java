@@ -1,5 +1,6 @@
 package com.example.iplan.Repository;
 
+import com.example.iplan.DTO.PlanChildDTO;
 import com.example.iplan.Repository.DefaultFirebaseRepository.DefaultFirebaseDBRepository;
 import com.example.iplan.Domain.PlanChild;
 import com.example.iplan.Service.PlanChildService;
@@ -43,4 +44,26 @@ public class PlanChildRepository extends DefaultFirebaseDBRepository<PlanChild> 
 
         return plans; // 일치하는 모든 PlanChild 문서를 포함하는 리스트 반환
     }
+
+    public List<PlanChildDTO> findByUserIdAndDateRange(String userId, LocalDate startDate, LocalDate endDate) throws ExecutionException, InterruptedException {
+        Firestore firestore = FirestoreClient.getFirestore();
+        CollectionReference collection = firestore.collection("PlanChild");
+
+        ApiFuture<QuerySnapshot> apiFutureList = collection
+                .whereEqualTo("user_id", userId)
+                .whereGreaterThanOrEqualTo("postDate", startDate.toString())
+                .whereLessThanOrEqualTo("postDate", endDate.toString())
+                .get();
+
+        QuerySnapshot querySnapshot = apiFutureList.get();
+        List<PlanChildDTO> plans = new ArrayList<>();
+
+        for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
+            PlanChildDTO plan = document.toObject(PlanChildDTO.class);
+            plans.add(plan);
+        }
+
+        return plans;
+    }
+
 }
