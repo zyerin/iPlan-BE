@@ -15,9 +15,13 @@ public class RewardParentsDTO {
 
     private String user_id; // 부모님의 사용자 ID
 
+    private String reward_id;   // 아이들의 보상 ID와 맵핑
+
     private String comment; // 부모님의 코멘트
 
     private int grade; // 별점 (1~5 사이의 점수)
 
-    private boolean is_rewarded; // 보상이 지급되었는지 여부
+    private boolean rewarded; // 보상이 지급되었는지 여부
+
+    private boolean success; // 보상을 지급하였는지 보류하였는지 (계획을 모두 달성했는가)
 }
