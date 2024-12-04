@@ -7,6 +7,7 @@ import com.example.iplan.Service.PlanChildService;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,18 +45,18 @@ public class PlanChildController {
      * @throws InterruptedException
      */
     @GetMapping("/List")
-    public List<PlanChildDTO> showPlanList(String user_id, String targetDate) throws ExecutionException, InterruptedException {
+    public List<PlanChildDTO> showPlanList(@AuthenticationPrincipal String user_id, String targetDate) throws ExecutionException, InterruptedException {
         return planChildService.findAllPlanList(user_id, targetDate);
     }
 
-    @GetMapping("/detail")
-    public PlanChild showPlanDetail(String documentID) throws ExecutionException, InterruptedException {
+    @GetMapping("/detail/{documentID}")
+    public PlanChild showPlanDetail(@PathVariable String documentID) throws ExecutionException, InterruptedException {
         return planChildService.findByPlanID(documentID);
     }
 
     @PatchMapping("/update-plan")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> updatePlan(@RequestBody @NotNull PlanChildDTO request, String user_id) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> updatePlan(@RequestBody @NotNull PlanChildDTO request, @AuthenticationPrincipal String user_id) throws ExecutionException, InterruptedException {
         return planChildService.updateOriginalPlan(request, user_id);
     }
 

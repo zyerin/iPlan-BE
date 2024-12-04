@@ -3,6 +3,7 @@ package com.example.iplan.Controller;
 import com.example.iplan.Service.ScreenTimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,7 @@ public class ScreenTimeController {
     private final ScreenTimeService screenTimeService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, Object>> uploadScreenTimeFile(@RequestParam("image")MultipartFile image, String user_id) throws IOException, ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> uploadScreenTimeFile(@RequestParam("image")MultipartFile image, @AuthenticationPrincipal String user_id) throws IOException, ExecutionException, InterruptedException {
         return screenTimeService.uploadScreenTimeImage(image, user_id);
     }
 

@@ -22,15 +22,15 @@ public class RewardParentsController {
     }
 
     // 아이들이 설정한 보상 지급
-    @PostMapping("/{rewardId}")
-    public ResponseEntity<Map<String, Object>> addRewardParents(@RequestBody RewardParentsDTO rewardParents, @PathVariable String rewardId) throws ExecutionException, InterruptedException {
-        return rewardParentsService.saveRewardParents(rewardParents, rewardId);
+    @PostMapping("/{childRewardId}")
+    public ResponseEntity<Map<String, Object>> addRewardParents(@RequestBody RewardParentsDTO rewardParents, @PathVariable String childRewardId) throws ExecutionException, InterruptedException {
+        return rewardParentsService.saveRewardParents(rewardParents, childRewardId);
     }
 
     // RewardParents 에서 해당 문서의 id에 대한 세부사항 가져옴
-    @GetMapping("/{id}")
-    public ResponseEntity<RewardParents> getRewardParents(@PathVariable String id) throws ExecutionException, InterruptedException {
-        RewardParents rewardParents = rewardParentsService.getRewardParents(id);
+    @GetMapping("/{parentsRewardId}")
+    public ResponseEntity<RewardParents> getRewardParents(@PathVariable String parentsRewardId) throws ExecutionException, InterruptedException {
+        RewardParents rewardParents = rewardParentsService.getRewardParents(parentsRewardId);
         return ResponseEntity.ok(rewardParents);
     }
 
