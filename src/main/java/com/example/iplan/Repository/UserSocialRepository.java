@@ -10,7 +10,7 @@ import com.google.cloud.firestore.Firestore;
 public class UserSocialRepository extends DefaultFirebaseDBRepository<UserSocial> {
 
     public UserSocialRepository(Firestore firestore) {
-        // super(firestore);
+        super(firestore);
         setEntityClass(UserSocial.class);
         setCollectionName("User");
     }
