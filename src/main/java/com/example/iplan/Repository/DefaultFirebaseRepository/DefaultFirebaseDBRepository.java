@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Component
@@ -54,7 +56,14 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         result.get();
     }
 
-    // ID로 Entity 검색 메서드
+    /**
+     * 문서 아이디로 고유 문서를 찾는 메서드
+     * 이는 user_id도 필요 없다.
+     * @param document_id
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     @Override
     public T findEntityByDocumentId(String document_id) throws ExecutionException, InterruptedException {
         CollectionReference collection = firestore.collection(collectionName);
@@ -85,6 +94,48 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
     }
 
     /**
+     * 여러가지 조건에 해당하는 단일 문서를 찾기 위한 메서드
+     * 주로 특정 user_id에 특정 데이터를 가지는 문서를 찾기 위해 쓰임
+     * @param fields Map형태로 Map.of()로 만들어 보내는 것이 편하다.
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    @Override
+    public T findByFields(Map<String, Object> fields) throws ExecutionException, InterruptedException {
+        CollectionReference collection = firestore.collection(collectionName);
+        Query query = buildQuery(collection, fields);
+        ApiFuture<QuerySnapshot> apiFuture = query.get();
+        QuerySnapshot querySnapshot = apiFuture.get();
+
+        if(!querySnapshot.isEmpty()){
+            return querySnapshot.getDocuments().get(0).toObject(entityClass);
+        }
+        return null;
+    }
+
+    /**
+     * 여러 조건에 해당하는 여러개의 문서를 가져오기 위한 메서드
+     * 예를 들어 특정 user_id에 특정 날짜에 해당하는 문서리스트
+     * @param fields Map형태로 Map.of()로 만들어 보내는 것이 편하다.
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    @Override
+    public List<T> findAllByFields(Map<String, Object> fields) throws ExecutionException, InterruptedException {
+        CollectionReference collection = firestore.collection(collectionName);
+        Query query = buildQuery(collection, fields);
+        ApiFuture<QuerySnapshot> apiFuture = query.get();
+        QuerySnapshot querySnapshot = apiFuture.get();
+
+        if (!querySnapshot.isEmpty()) {
+            return querySnapshot.toObjects(entityClass);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * entity 객체에서 문서 ID를 추출한다.
      * entity가 DocumentId를 포함하는 필드가 있다면 해당 필드에서 ID를 가져온다.
      * @param entity 추출하고 싶은 ID의 객체
@@ -97,5 +148,14 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
         } catch (Exception e) {
             throw new RuntimeException("Failed to get document ID", e);
         }
+    }
+
+    private Query buildQuery(CollectionReference collection, Map<String, Object> fields){
+        Query query = collection;
+        for(Map.Entry<String, Object> entry : fields.entrySet()){
+            query = query.whereEqualTo(entry.getKey(), entry.getValue());
+        }
+
+        return query;
     }
 }
