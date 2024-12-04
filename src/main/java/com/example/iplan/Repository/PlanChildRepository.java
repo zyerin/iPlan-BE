@@ -11,12 +11,14 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Repository
 public class PlanChildRepository extends DefaultFirebaseDBRepository<PlanChild> {
 
-    public PlanChildRepository() {
+    public PlanChildRepository(Firestore firestore) {
+        super(firestore);
         setEntityClass(PlanChild.class);
         setCollectionName("PlanChild");
     }
@@ -29,8 +31,8 @@ public class PlanChildRepository extends DefaultFirebaseDBRepository<PlanChild> 
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<PlanChild> findByDate(String user_id, LocalDate targetDate) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
+    public List<PlanChild> findByDate(String user_id, String targetDate) throws ExecutionException, InterruptedException {
+        /*Firestore firestore = FirestoreClient.getFirestore();
         //어떤 컬렉션인지 객체 가져옴
         CollectionReference collection = firestore.collection("PlanChild");
 
@@ -51,6 +53,11 @@ public class PlanChildRepository extends DefaultFirebaseDBRepository<PlanChild> 
             }
         }
 
-        return plans; // 일치하는 모든 PlanChild 문서를 포함하는 리스트 반환
+        return plans; // 일치하는 모든 PlanChild 문서를 포함하는 리스트 반환*/
+        Map<String, Object> filters = Map.of(
+                "user_id", user_id,
+                "post_date", targetDate
+        );
+        return findAllByFields(filters);
     }
 }
