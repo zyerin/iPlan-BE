@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -63,7 +64,7 @@ public class ScreenTimeService {
 
             // 해당 날짜에 설정해둔 목표 시간에 달성했을 때, 결과물을 담아서 보낸다.
             // 실패시 파일을 삭제하고, 상황에 맞게 오류 발송
-            if(!AchieveUsingTime(user_id, filteredTexts, response)){
+            if(!IsAchieveUsingTime(user_id, filteredTexts, response)){
 
                 ScreenTimeOCRResult result = ScreenTimeOCRResult.builder()
                                 .id(user_id)
@@ -123,24 +124,26 @@ public class ScreenTimeService {
             Matcher mainTimeMatcher = timePattern.matcher(text);
 
             if(!result.containsKey("date") && dateMatcher.find()){
-                result.put("date", text);
+                String date = DateFormatter(dateMatcher);
+                result.put("date", date);
             }
             // 메인 시간 추출
             else if(!mainTimeCaptured && mainTimeMatcher.matches()){
-                int hours = Integer.parseInt(mainTimeMatcher.group(1));
-                int minutes = Integer.parseInt(mainTimeMatcher.group(2));
-                Duration duration = Duration.ofHours(hours).plusMinutes(minutes);
+                String mainTime = TimeFormatter(mainTimeMatcher);
+                result.put("mainTime", mainTime);
 
-                result.put("mainTime", duration);
                 mainTimeCaptured = true;
                 timeCount++;
             }
 
             //카테고리 및 각 카테고리별 시간 추출
-            else if(mainTimeCaptured && timeCount > 0 && timeCount < 4){
-                if(timePattern.matcher(text).matches()){
+            else if(mainTimeCaptured && timeCount > 0){
+                Matcher subtimeMatcher = timePattern.matcher(text);
+                if(subtimeMatcher.matches()){
+                    String subtime = TimeFormatter(subtimeMatcher);
                     Map<String, String> categoryTime = categories.get(categories.size() - 1);
-                    categoryTime.put("time", text);
+                    categoryTime.put("time", subtime);
+
                     timeCount++;
                 }else{
                     Map<String, String> category = new HashMap<>();
@@ -156,22 +159,25 @@ public class ScreenTimeService {
     }
 
     private boolean IsInValidScreenShot(String user_id, LocalDateTime fileCreationDateTime) throws ExecutionException, InterruptedException {
-        LocalDate fileCreationDate = fileCreationDateTime.toLocalDate();
-        LocalTime fileCreationTime = fileCreationDateTime.toLocalTime();
+        String fileCreationDate = fileCreationDateTime.toLocalDate().toString();
+        String fileCreationTime = fileCreationDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
-        LocalTime deadLineTime = setScreenTimeRepository.findByDate(user_id, LocalDate.now()).getDeadLineTime();
+        String deadLineTime = setScreenTimeRepository.findByDate(user_id, LocalDate.now().toString()).getDeadLineTime();
+        System.out.println("사진 올리는 마감 시간 : " + deadLineTime);
 
-        return fileCreationDate.isEqual(LocalDate.now()) && fileCreationTime.isAfter(deadLineTime);
+        return fileCreationDate.equals(LocalDate.now().toString()) && LocalTime.parse(fileCreationTime).isAfter(LocalTime.parse(deadLineTime));
     }
 
-    private boolean AchieveUsingTime(String user_id, Map<String, Object> filteredTexts, Map<String, Object> response) throws ExecutionException, InterruptedException {
+    private boolean IsAchieveUsingTime(String user_id, Map<String, Object> filteredTexts, Map<String, Object> response) throws ExecutionException, InterruptedException {
         if(filteredTexts.get("mainTime") instanceof Duration){
-            Duration userUsingTime = (Duration) filteredTexts.get("mainTime");
+            Pattern timePattern = Pattern.compile("(\\d+)시간 (\\d+)분");
+            Matcher mainTimeMatcher = timePattern.matcher(filteredTexts.get("mainTime").toString());
 
-            Duration goalTime = setScreenTimeRepository.findByDate(user_id, LocalDate.now()).getGoalTime();
+            String uploadDuration = TimeFormatter(mainTimeMatcher);
+            String goalTime = setScreenTimeRepository.findByDate(user_id, LocalDate.now().toString()).getGoalTime();
 
-            if(userUsingTime.compareTo(goalTime) >= 0){
-                response.put("filteredTexts", filteredTexts);
+            if(uploadDuration.compareTo(goalTime) >= 0){
+                response.put("entity", filteredTexts);
                 response.put("success", true);
                 response.put("message", "목표 시간 달성에 성공하였습니다.");
                 return true;
@@ -184,5 +190,25 @@ public class ScreenTimeService {
 
         response.put("message", "mainTime이 Duration 타입이 아닙니다.");
         return false;
+    }
+
+    private String DateFormatter(Matcher dateMatcher){
+        int year = LocalDate.now().getYear();
+        int month = Integer.parseInt(dateMatcher.group(1));
+        int date = Integer.parseInt(dateMatcher.group(2));
+
+        LocalDate parsedDate = LocalDate.of(year, month, date);
+
+        // yyyy-MM-dd 형식으로 포맷
+        return parsedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
+    private String TimeFormatter(Matcher timeMatcher){
+        int hours = Integer.parseInt(timeMatcher.group(1));
+        int minutes = Integer.parseInt(timeMatcher.group(2));
+        LocalTime parseTime = LocalTime.of(hours, minutes);
+
+        // HH:mm 형식으로 포맷
+        return parseTime.format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 }

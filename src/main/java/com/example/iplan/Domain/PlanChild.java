@@ -32,13 +32,14 @@ public class PlanChild {
     //카테고리 테이블의 아이디
     private List<String> category_id;
 
-    private LocalDate date;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private String post_date;
 
     private String memo;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime start_time;
+    private String start_date;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime end_time;
+    private String end_date;
     private boolean is_completed;
 
 }

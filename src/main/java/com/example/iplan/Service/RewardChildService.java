@@ -70,7 +70,7 @@ public class RewardChildService {
      */
     public RewardChild getReward(String id) throws ExecutionException, InterruptedException {
         try {
-            return rewardRepository.findById(id);
+            return rewardRepository.findEntityByDocumentId(id);
         } catch (Exception e) {
             throw new ExecutionException("보상 조회에 실패했습니다. Error: " + e, e);
         }
@@ -78,17 +78,17 @@ public class RewardChildService {
 
     /**
      * 보상을 ID로 삭제하는 기능
-     * @param id 삭제할 보상의 ID
+     * @param documentID 삭제할 보상의 ID
      * @return 삭제 결과
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public ResponseEntity<Map<String, Object>> deleteReward(String id) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> deleteReward(String documentID) throws ExecutionException, InterruptedException {
         Map<String, Object> response = new HashMap<>();
 
         try {
             // 해당 ID의 보상을 조회
-            RewardChild reward = rewardRepository.findById(id);
+            RewardChild reward = rewardRepository.findEntityByDocumentId(documentID);
             if (reward == null) {
                 response.put("success", false);
                 response.put("message", "해당 ID의 보상을 찾을 수 없습니다.");
@@ -103,7 +103,8 @@ public class RewardChildService {
             }
 
             // 지급되지 않은 보상만 삭제 허용
-            rewardRepository.delete(id);
+            RewardChild rewardChild = rewardRepository.findEntityByDocumentId(documentID);
+            rewardRepository.delete(rewardChild);
             response.put("success", true);
             response.put("message", "보상이 정상적으로 삭제되었습니다.");
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -122,10 +123,10 @@ public class RewardChildService {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public ResponseEntity<Map<String, Object>> updateReward(RewardChildDTO rewardDto) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> updateReward(String user_id, RewardChildDTO rewardDto) throws ExecutionException, InterruptedException {
         Map<String, Object> response = new HashMap<>();
 
-        RewardChild existingReward = rewardRepository.findById(rewardDto.getId());
+        RewardChild existingReward = rewardRepository.findEntityByDocumentId(rewardDto.getId());
 
         if (existingReward == null) {
             response.put("success", false);
@@ -134,7 +135,7 @@ public class RewardChildService {
         }
 
         // RewardParents에서 같은 plan_id를 가진 문서를 찾는다.
-        List<RewardParents> rewardParentsList = rewardParentsRepository.findByPlanId(rewardDto.getPlan_id());
+        List<RewardParents> rewardParentsList = rewardParentsRepository.findByPlanId(user_id, rewardDto.getPlan_id());
 
         // 같은 plan_id를 가진 RewardParents 중에서 is_rewarded가 true인 경우 수정할 수 없다.
         boolean isAnyRewarded = rewardParentsList.stream().anyMatch(RewardParents::is_rewarded);
@@ -181,7 +182,7 @@ public class RewardChildService {
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
         // 모든 보상 가져오기
-        List<RewardChildDTO> rewards = rewardRepository.findByUserId(userId);
+        List<RewardChildDTO> rewards = rewardRepository.findRewardChildDtoByUserId(userId);
 
         // 보상 중에서 해당 기간에 달성된 보상만 필터링하여 계산
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");

@@ -6,6 +6,7 @@ import com.example.iplan.Service.RewardChildService;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,15 +37,15 @@ public class RewardChildController {
 
     /**
      * 보상 세부사항을 가져옴
-     * @param id 보상 ID
+     * @param documentId 보상 ID
      * @return 보상 객체
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{documentId}")
     @ResponseBody
-    public ResponseEntity<RewardChild> getReward(@PathVariable String id) throws ExecutionException, InterruptedException {
-        RewardChild reward = rewardChildService.getReward(id);
+    public ResponseEntity<RewardChild> getReward(@PathVariable String documentId) throws ExecutionException, InterruptedException {
+        RewardChild reward = rewardChildService.getReward(documentId);
         return ResponseEntity.ok(reward);
     }
 
@@ -55,23 +56,23 @@ public class RewardChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @PatchMapping
+    @PatchMapping()
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> updateReward(@RequestBody @NotNull RewardChildDTO reward) throws ExecutionException, InterruptedException {
-        return rewardChildService.updateReward(reward);
+    public ResponseEntity<Map<String, Object>> updateReward(@AuthenticationPrincipal String user_id, @RequestBody @NotNull RewardChildDTO reward) throws ExecutionException, InterruptedException {
+        return rewardChildService.updateReward(user_id, reward);
     }
 
     /**
      * 보상을 삭제
-     * @param id 보상 ID
+     * @param documentID 보상 ID
      * @return 성공 여부 및 오류 메시지
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{documentID}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteReward(@PathVariable String id) throws ExecutionException, InterruptedException {
-        return rewardChildService.deleteReward(id);
+    public ResponseEntity<Map<String, Object>> deleteReward(@PathVariable String documentID) throws ExecutionException, InterruptedException {
+        return rewardChildService.deleteReward(documentID);
     }
 
     /**
@@ -83,7 +84,7 @@ public class RewardChildController {
      */
     @GetMapping("/monthly-achievement")
     public ResponseEntity<Map<String, Object>> countMonthlyRewards(
-            @RequestParam String user_id,
+            @AuthenticationPrincipal String user_id,
             @RequestParam int year,
             @RequestParam int month) {
         Map<String, Object> response = new HashMap<>();

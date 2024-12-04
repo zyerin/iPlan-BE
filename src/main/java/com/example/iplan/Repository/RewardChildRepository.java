@@ -18,7 +18,8 @@ import java.util.concurrent.ExecutionException;
 @Repository
 public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChild> {
 
-    public RewardChildRepository() {
+    public RewardChildRepository(Firestore firestore) {
+        super(firestore);
         setEntityClass(RewardChild.class);
         setCollectionName("RewardChild");
     }
@@ -30,7 +31,7 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<RewardChildDTO> findByUserId(String userId) throws ExecutionException, InterruptedException {
+    public List<RewardChildDTO> findRewardChildDtoByUserId(String userId) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardChild");
 
@@ -40,15 +41,7 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
 
         QuerySnapshot querySnapshot = apiFutureList.get();
 
-        List<RewardChildDTO> rewards = new ArrayList<>();
-
-        for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-            RewardChild rewardChild = document.toObject(RewardChild.class);
-            RewardChildDTO rewardChildDTO = convertToDTO(rewardChild);
-            rewards.add(rewardChildDTO);
-        }
-
-        return rewards;
+        return getRewardChildDTOS(querySnapshot);
     }
 
     /**
@@ -58,7 +51,7 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<RewardChildDTO> findByDate(String userId, String targetDate) throws ExecutionException, InterruptedException {
+    public List<RewardChildDTO> findRewardChildDtoByDate(String userId, String targetDate) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardChild");
 
@@ -69,6 +62,10 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
 
         QuerySnapshot querySnapshot = apiFutureList.get();
 
+        return getRewardChildDTOS(querySnapshot);
+    }
+
+    private List<RewardChildDTO> getRewardChildDTOS(QuerySnapshot querySnapshot) {
         List<RewardChildDTO> rewards = new ArrayList<>();
 
         for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {

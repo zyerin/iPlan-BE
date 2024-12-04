@@ -14,31 +14,32 @@ import java.util.concurrent.ExecutionException;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/plan-category")
 public class PlanCategoryController {
 
     private final PlanCategoryService planCategoryService;
 
-    @PostMapping("plan-category/addition")
+    @PostMapping("/addition/{documentID}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> additionPlanCategory(@RequestBody @NotNull PlanCategoryDTO request, String user_id){
-        return planCategoryService.addCategory(user_id, request);
+    public ResponseEntity<Map<String, Object>> additionPlanCategory(@RequestBody @NotNull PlanCategoryDTO request, @PathVariable String documentID){
+        return planCategoryService.addCategory(documentID, request);
     }
 
-    @GetMapping("plan-category/categoryList")
+    @GetMapping("/categoryList/{documentID}")
     @ResponseBody
-    public List<PlanCategoryDTO> findAllUserCategory(String user_id) throws ExecutionException, InterruptedException {
-        return planCategoryService.findAllPlanCategory(user_id);
+    public List<PlanCategoryDTO> findAllUserCategory(@PathVariable String documentID) throws ExecutionException, InterruptedException {
+        return planCategoryService.findAllPlanCategory(documentID);
     }
 
-    @PatchMapping("plan-category/update")
+    @PatchMapping("/update/{documentID}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> updatePlanCategory(String user_id, PlanCategoryDTO planCategoryDTO) throws ExecutionException, InterruptedException {
-        return planCategoryService.updatePlanCategory(user_id, planCategoryDTO);
+    public ResponseEntity<Map<String, Object>> updatePlanCategory(@PathVariable String documentID, PlanCategoryDTO planCategoryDTO) throws ExecutionException, InterruptedException {
+        return planCategoryService.updatePlanCategory(documentID, planCategoryDTO);
     }
 
-    @DeleteMapping("plan-category/delete")
+    @DeleteMapping("/delete/{documentID}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> deletePlanCategory(String documentID) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> deletePlanCategory(@PathVariable String documentID) throws ExecutionException, InterruptedException {
         return planCategoryService.deletePlanCategory(documentID);
     }
 }

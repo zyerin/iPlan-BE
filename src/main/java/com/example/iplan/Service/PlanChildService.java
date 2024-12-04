@@ -41,9 +41,9 @@ public class PlanChildService {
                 .memo(planPostDto.getMemo())
                 .category_id(planPostDto.getCategory_id())
                 .title(planPostDto.getTitle())
-                .date(planPostDto.getPost_date())
-                .start_time(planPostDto.getStart_time())
-                .end_time(planPostDto.getEnd_time())
+                .post_date(planPostDto.getPost_date())
+                .start_date(planPostDto.getStart_time())
+                .end_date(planPostDto.getEnd_time())
                 .is_completed(planPostDto.is_completed())
                 .build();
 
@@ -69,7 +69,7 @@ public class PlanChildService {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<PlanChildDTO> findAllPlanList(String user_id, LocalDate targetDate) throws ExecutionException, InterruptedException {
+    public List<PlanChildDTO> findAllPlanList(String user_id, String targetDate) throws ExecutionException, InterruptedException {
         List<PlanChild> planEntityList = planChildRepository.findByDate(user_id, targetDate);
 
         ArrayList<PlanChildDTO> planDtoList = new ArrayList<>();
@@ -78,8 +78,8 @@ public class PlanChildService {
             PlanChildDTO planDto = PlanChildDTO.builder()
                     .id(plan.getId())
                     .title(plan.getTitle())
-                    .start_time(plan.getStart_time())
-                    .end_time(plan.getEnd_time())
+                    .start_time(plan.getStart_date())
+                    .end_time(plan.getEnd_date())
                     .is_completed(plan.is_completed())
                     .build();
 
@@ -91,7 +91,7 @@ public class PlanChildService {
 
     public PlanChild findByPlanID(String documentID) throws ExecutionException, InterruptedException {
 
-        return planChildRepository.findById(documentID);
+        return planChildRepository.findEntityByDocumentId(documentID);
     }
 
     /**
@@ -106,7 +106,7 @@ public class PlanChildService {
 
         Map<String, Object> response = new HashMap<>();
 
-        PlanChild originalPlan = planChildRepository.findById(planChildDTO.getId());
+        PlanChild originalPlan = planChildRepository.findEntityByDocumentId(planChildDTO.getId());
 
         if(!Objects.equals(originalPlan.getUser_id(), user_id))
         {
@@ -116,8 +116,8 @@ public class PlanChildService {
         }
 
         updateIfNotNull(planChildDTO.getTitle(), originalPlan::setTitle);
-        updateIfNotNull(planChildDTO.getStart_time(), originalPlan::setStart_time);
-        updateIfNotNull(planChildDTO.getEnd_time(), originalPlan::setEnd_time);
+        updateIfNotNull(planChildDTO.getStart_time(), originalPlan::setStart_date);
+        updateIfNotNull(planChildDTO.getEnd_time(), originalPlan::setEnd_date);
         updateIfNotNull(planChildDTO.getMemo(), originalPlan::setMemo);
         updateIfNotNull(planChildDTO.getCategory_id(), originalPlan::setCategory_id);
         updateIfNotNull(planChildDTO.isAlarm(), originalPlan::setAlarm);
@@ -141,7 +141,8 @@ public class PlanChildService {
         Map<String, Object> response = new HashMap<>();
 
         try{
-            planChildRepository.delete(document_id);
+            PlanChild plan = planChildRepository.findEntityByDocumentId(document_id);
+            planChildRepository.delete(plan);
         }
         catch (Exception e){
             response.put("success", false);

@@ -24,8 +24,8 @@ public class PlanChildDTO {
     private boolean alarm;
     private List<String> category_id;
     private String memo;
-    private LocalDate post_date;
-    private LocalDateTime start_time;
-    private LocalDateTime end_time;
+    private String post_date;
+    private String start_time;
+    private String end_time;
     private boolean is_completed;
 }

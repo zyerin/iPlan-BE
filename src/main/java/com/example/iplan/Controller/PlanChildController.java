@@ -7,6 +7,7 @@ import com.example.iplan.Service.PlanChildService;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("/plan")
 public class PlanChildController {
 
     private final PlanChildService planChildService;
@@ -29,7 +31,7 @@ public class PlanChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @PostMapping("plan/addition")
+    @PostMapping("/addition")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> additionPlan(@RequestBody @NotNull PlanChildDTO request, String user_id)
             throws ExecutionException, InterruptedException {
@@ -42,29 +44,29 @@ public class PlanChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @GetMapping("plan/List")
-    public List<PlanChildDTO> showPlanList(String user_id, LocalDate targetDate) throws ExecutionException, InterruptedException {
+    @GetMapping("/List")
+    public List<PlanChildDTO> showPlanList(@AuthenticationPrincipal String user_id, String targetDate) throws ExecutionException, InterruptedException {
         return planChildService.findAllPlanList(user_id, targetDate);
     }
 
-    @GetMapping("plan/detail")
-    public PlanChild showPlanDetail(String documentID) throws ExecutionException, InterruptedException {
+    @GetMapping("/detail/{documentID}")
+    public PlanChild showPlanDetail(@PathVariable String documentID) throws ExecutionException, InterruptedException {
         return planChildService.findByPlanID(documentID);
     }
 
-    @PatchMapping("plan/update-plan")
+    @PatchMapping("/update-plan")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> updatePlan(@RequestBody @NotNull PlanChildDTO request, String user_id) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> updatePlan(@RequestBody @NotNull PlanChildDTO request, @AuthenticationPrincipal String user_id) throws ExecutionException, InterruptedException {
         return planChildService.updateOriginalPlan(request, user_id);
     }
 
-    @DeleteMapping("plan/delete-plan")
+    @DeleteMapping("/delete-plan/{documentID}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> deletePlan(@RequestBody String documentID) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> deletePlan(@PathVariable String documentID) throws ExecutionException, InterruptedException {
         return planChildService.DeletePlan(documentID);
     }
 
-    @PostMapping("plan/screen-time-set")
+    @PostMapping("/screen-time-set")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> setScreenTime(@RequestBody ScreenTime screenTime){
         return planChildService.SetScreenTime(screenTime);

@@ -12,12 +12,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Repository
 public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardParents> {
 
-    public RewardParentsRepository() {
+    public RewardParentsRepository(Firestore firestore) {
+        super(firestore);
         setEntityClass(RewardParents.class);
         setCollectionName("RewardParents"); // Firestore에서 저장할 컬렉션 이름 설정
     }
@@ -29,8 +31,8 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<RewardParents> findByUserId(String userId) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
+    public List<RewardParents> findRewardParentsListByUserId(String userId) throws ExecutionException, InterruptedException {
+        //Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardParents");
 
         ApiFuture<QuerySnapshot> apiFutureList = collection
@@ -56,8 +58,8 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<RewardParents> findByPlanId(String planId) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
+    public List<RewardParents> findByPlanId(String user_id, String planId) throws ExecutionException, InterruptedException {
+        /*Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardParents");
 
         ApiFuture<QuerySnapshot> apiFutureList = collection
@@ -72,6 +74,12 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
             rewardParents.add(document.toObject(RewardParents.class));
         }
 
-        return rewardParents;
+        return rewardParents;*/
+
+        Map<String, Object> filters = Map.of(
+                "user_id", user_id,
+                "plan_id", planId
+        );
+        return findAllByFields(filters);
     }
 }

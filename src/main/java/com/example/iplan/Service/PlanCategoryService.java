@@ -4,8 +4,6 @@ import com.example.iplan.DTO.PlanCategoryDTO;
 import com.example.iplan.Domain.PlanCategory;
 import com.example.iplan.Repository.PlanCategoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -56,7 +54,7 @@ public class PlanCategoryService {
      * @throws InterruptedException
      */
     public List<PlanCategoryDTO> findAllPlanCategory(String user_id) throws ExecutionException, InterruptedException {
-        List<PlanCategory> planCategoryList = planCategoryRepository.findAll(user_id);
+        List<PlanCategory> planCategoryList = planCategoryRepository.findAllByFields(Map.of("user_id", user_id));
 
         ArrayList<PlanCategoryDTO> planCategoryDTOArrayList = new ArrayList<>();
 
@@ -83,7 +81,7 @@ public class PlanCategoryService {
     public ResponseEntity<Map<String, Object>> updatePlanCategory(String user_id, PlanCategoryDTO planCategoryDTO) throws ExecutionException, InterruptedException {
         Map<String, Object> response = new HashMap<>();
 
-        List<PlanCategory> planCategoryList = planCategoryRepository.findAll(user_id);
+        List<PlanCategory> planCategoryList = planCategoryRepository.findAllByFields(Map.of("user_id", user_id));
 
         Optional<PlanCategory> category = planCategoryList.stream()
                 .filter(x -> Objects.equals(x.getId(), planCategoryDTO.getId()))
@@ -123,7 +121,8 @@ public class PlanCategoryService {
         Map<String, Object> response = new HashMap<>();
 
         try{
-            planCategoryRepository.delete(document_id);
+            PlanCategory planCategory = planCategoryRepository.findEntityByDocumentId(document_id);
+            planCategoryRepository.delete(planCategory);
         }
         catch (Exception e){
             response.put("success", false);
