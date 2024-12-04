@@ -10,6 +10,8 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -22,13 +24,8 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
         setCollectionName("RewardParents"); // Firestore에서 저장할 컬렉션 이름 설정
     }
 
-    /**
-     * 특정 사용자 ID와 일치하는 보상 부모 목록을 반환
-     * @param userId 사용자 ID
-     * @return 해당 사용자의 보상 부모 목록
-     * @throws ExecutionException
-     * @throws InterruptedException
-     */
+
+     // 특정 사용자 ID와 일치하는 보상 부모 목록을 반환
     public List<RewardParents> findByUserId(String userId) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardParents");
@@ -48,14 +45,8 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
         return rewardParents;
     }
 
-    /**
-     * 특정 계획 ID와 일치하는 보상 부모 목록을 반환
-     * 특정 planId와 일치하는 모든 RewardParents 문서를 Firestore에서 조회하여 반환
-     * @param planId 계획 ID
-     * @return 해당 계획에 대한 보상 부모 목록
-     * @throws ExecutionException
-     * @throws InterruptedException
-     */
+
+     // 특정 계획 ID와 일치하는 보상 부모 목록을 반환
     public List<RewardParents> findByPlanId(String planId) throws ExecutionException, InterruptedException {
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardParents");
@@ -74,4 +65,12 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
 
         return rewardParents;
     }
+
+
+
+
+
+
 }
+
+
