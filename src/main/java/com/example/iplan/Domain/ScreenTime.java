@@ -2,37 +2,35 @@ package com.example.iplan.Domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.cloud.firestore.annotation.DocumentId;
+import com.google.cloud.firestore.annotation.PropertyName;
 import com.google.firebase.database.annotations.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Component;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Component
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ScreenTime {
+
     @DocumentId
-    private String id;
+    private String id; // Firestore 문서의 ID
 
     @NotNull
-    private String user_id;
+    private String user_id; // 아이의 사용자 ID와 매핑
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private String date;
+    @NotNull
+    private int daily_limit; // 아이가 설정한 하루 제한 시간(분)
 
-    // 사용자가 정한 최소 측정 마감 시간
-    @JsonFormat(pattern = "HH:mm")
-    private String deadLineTime;
+    private int used_time; // 아이가 사용한 시간(분)
 
-    // 사용자가 정한 핸드폰 사용 시간
-    @JsonFormat(pattern = "HH:mm")
-    private String goalTime;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private String start_time;  // 스크린타임 측정 시작 시간
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private String date;  // 스크린타임 측정 날짜
+
+
 }
