@@ -1,5 +1,6 @@
 package com.example.iplan.Domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,9 +25,14 @@ public class ScreenTime {
     @NotNull
     private String user_id;
 
-    private LocalDate date;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private String date;
 
-    private LocalTime deadLineTime;
+    // 사용자가 정한 최소 측정 마감 시간
+    @JsonFormat(pattern = "HH:mm")
+    private String deadLineTime;
 
-    private Duration goalTime;
+    // 사용자가 정한 핸드폰 사용 시간
+    @JsonFormat(pattern = "HH:mm")
+    private String goalTime;
 }
