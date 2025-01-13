@@ -5,6 +5,7 @@ import com.example.iplan.Domain.PlanChild;
 import com.example.iplan.Domain.ScreenTime;
 import com.example.iplan.Repository.PlanChildRepository;
 import com.example.iplan.Repository.SetScreenTimeRepository;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,17 +34,17 @@ public class PlanChildService {
      */
     public ResponseEntity<Map<String, Object>> postChildNewPlan(PlanChildDTO planPostDto, String user_id) throws ExecutionException, InterruptedException {
         Map<String, Object> response = new HashMap<>();
+        String[] dateArr = planPostDto.getPost_date().split("-");
 
-        //나중엔 Authentication을 통한 user_id 추출
         PlanChild planPost = PlanChild.builder()
                 .user_id(user_id)
                 .alarm(planPostDto.isAlarm())
                 .memo(planPostDto.getMemo())
                 .category_id(planPostDto.getCategory_id())
                 .title(planPostDto.getTitle())
-                .post_date(planPostDto.getPost_date())
-                .start_date(planPostDto.getStart_time())
-                .end_date(planPostDto.getEnd_time())
+                .post_year(dateArr[0])
+                .post_month(dateArr[1])
+                .post_date(dateArr[2])
                 .is_completed(planPostDto.is_completed())
                 .build();
 
@@ -65,11 +66,12 @@ public class PlanChildService {
      * 해당 날짜의 추가한 계획 리스트들을 전부 보여주는 기능
      * 엔티티가 아닌 Dto로 넘겨준다.
      * 목표 리스트에서 보여주고 싶은 정보만 넘겨주기 위해서
+     * @param targetDate 해당 날짜 "yyyy-MM-dd" 형식
      * @return 해당 날짜 계획 리스트
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<PlanChildDTO> findAllPlanList(String user_id, String targetDate) throws ExecutionException, InterruptedException {
+    public List<PlanChildDTO> findAllPlanList(String user_id, @JsonFormat(pattern = "yyyy-MM-dd") String targetDate) throws ExecutionException, InterruptedException {
         List<PlanChild> planEntityList = planChildRepository.findByDate(user_id, targetDate);
 
         ArrayList<PlanChildDTO> planDtoList = new ArrayList<>();
@@ -78,8 +80,6 @@ public class PlanChildService {
             PlanChildDTO planDto = PlanChildDTO.builder()
                     .id(plan.getId())
                     .title(plan.getTitle())
-                    .start_time(plan.getStart_date())
-                    .end_time(plan.getEnd_date())
                     .is_completed(plan.is_completed())
                     .build();
 
@@ -116,8 +116,6 @@ public class PlanChildService {
         }
 
         updateIfNotNull(planChildDTO.getTitle(), originalPlan::setTitle);
-        updateIfNotNull(planChildDTO.getStart_time(), originalPlan::setStart_date);
-        updateIfNotNull(planChildDTO.getEnd_time(), originalPlan::setEnd_date);
         updateIfNotNull(planChildDTO.getMemo(), originalPlan::setMemo);
         updateIfNotNull(planChildDTO.getCategory_id(), originalPlan::setCategory_id);
         updateIfNotNull(planChildDTO.isAlarm(), originalPlan::setAlarm);

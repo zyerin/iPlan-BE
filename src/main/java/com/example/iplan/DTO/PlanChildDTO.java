@@ -1,5 +1,6 @@
 package com.example.iplan.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,15 +18,20 @@ import java.util.List;
 public class PlanChildDTO {
 
     private String id;
+
     private String user_id;
 
     @NotNull
     private String title;
+
     private boolean alarm;
+
     private List<String> category_id;
+
     private String memo;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private String post_date;
-    private String start_time;
-    private String end_time;
+
     private boolean is_completed;
 }
