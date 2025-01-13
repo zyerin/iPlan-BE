@@ -5,6 +5,7 @@ import com.example.iplan.Domain.RewardChild;
 import com.example.iplan.Domain.RewardParents;
 import com.example.iplan.Repository.RewardChildRepository;
 import com.example.iplan.Repository.RewardParentsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +19,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+@RequiredArgsConstructor
 @Service
 public class RewardChildService {
 
     private final RewardChildRepository rewardRepository;
     private final RewardParentsRepository rewardParentsRepository;
-
-    @Autowired
-    public RewardChildService(RewardChildRepository rewardRepository, RewardParentsRepository rewardParentsRepository) {
-        this.rewardRepository = rewardRepository;
-        this.rewardParentsRepository = rewardParentsRepository;
-    }
 
     /**
      * 새로운 보상을 저장하는 기능
