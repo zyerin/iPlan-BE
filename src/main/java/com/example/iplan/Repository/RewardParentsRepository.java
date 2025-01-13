@@ -7,7 +7,6 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
-import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
      * @throws InterruptedException
      */
     public List<RewardParents> findRewardParentsListByUserId(String userId) throws ExecutionException, InterruptedException {
-        //Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collection = firestore.collection("RewardParents");
 
         ApiFuture<QuerySnapshot> apiFutureList = collection
@@ -59,23 +57,6 @@ public class RewardParentsRepository extends DefaultFirebaseDBRepository<RewardP
      * @throws InterruptedException
      */
     public List<RewardParents> findByPlanId(String user_id, String planId) throws ExecutionException, InterruptedException {
-        /*Firestore firestore = FirestoreClient.getFirestore();
-        CollectionReference collection = firestore.collection("RewardParents");
-
-        ApiFuture<QuerySnapshot> apiFutureList = collection
-                .whereEqualTo("plan_id", planId)  // planId 필드를 기준으로 필터링
-                .get();
-
-        QuerySnapshot querySnapshot = apiFutureList.get();
-
-        List<RewardParents> rewardParents = new ArrayList<>();
-
-        for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-            rewardParents.add(document.toObject(RewardParents.class));
-        }
-
-        return rewardParents;*/
-
         Map<String, Object> filters = Map.of(
                 "user_id", user_id,
                 "plan_id", planId
