@@ -1,7 +1,5 @@
 package com.example.iplan.DTO;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.firebase.database.annotations.NotNull;
 import lombok.Builder;
 import lombok.Getter;
