@@ -5,6 +5,7 @@ import com.example.iplan.Domain.RewardChild;
 import com.example.iplan.Domain.RewardParents;
 import com.example.iplan.Repository.RewardChildRepository;
 import com.example.iplan.Repository.RewardParentsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,17 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+@RequiredArgsConstructor
 @Service
 public class RewardParentsService {
 
     private final RewardParentsRepository rewardParentsRepository;
     private final RewardChildRepository rewardChildRepository;
-
-    @Autowired
-    public RewardParentsService(RewardParentsRepository rewardParentsRepository, RewardChildRepository rewardChildRepository) {
-        this.rewardParentsRepository = rewardParentsRepository;
-        this.rewardChildRepository = rewardChildRepository;
-    }
 
     /**
      * 부모님의 보상 코멘트와 별점, 보상 지급 여부를 저장하는 기능

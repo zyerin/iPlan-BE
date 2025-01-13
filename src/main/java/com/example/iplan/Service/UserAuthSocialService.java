@@ -5,6 +5,7 @@ import com.example.iplan.Repository.UserSocialRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,17 +13,13 @@ import java.util.concurrent.ExecutionException;
 
 // Google 로그인 및 사용자 정보를 Firestore 에 저장
 
+@RequiredArgsConstructor
 @Service
 public class UserAuthSocialService {
 
     private final FirebaseAuth firebaseAuth;
     private final UserSocialRepository userRepository;
 
-    @Autowired
-    public UserAuthSocialService(FirebaseAuth firebaseAuth, UserSocialRepository userRepository) {
-        this.firebaseAuth = firebaseAuth;
-        this.userRepository = userRepository;
-    }
     /**
      * Google 로그인 ID 토큰을 사용하여 사용자 인증 및 Firestore에 사용자 저장.
      *
