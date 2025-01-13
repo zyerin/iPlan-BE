@@ -21,5 +21,9 @@ public class RewardChildDTO {
 
     private String plan_id; // 보상을 지급할 plan
 
-    private boolean is_rewarded; // 보상이 지급되었는지 여부
+    private boolean rewarded; // 보상이 지급되었는지 여부
+
+    private boolean success; // 보상이 지급 or 보류
+
+//    private boolean is_rewarded; // 보상이 지급되었는지 여부
 }

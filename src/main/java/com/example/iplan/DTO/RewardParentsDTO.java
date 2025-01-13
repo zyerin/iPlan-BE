@@ -19,5 +19,9 @@ public class RewardParentsDTO {
 
     private int grade; // 별점 (1~5 사이의 점수)
 
-    private boolean is_rewarded; // 보상이 지급되었는지 여부
+    private boolean rewarded; // 보상이 지급되었는지 여부
+
+    private boolean success; // 보상을 지급하였는지 보류하였는지 (계획을 모두 달성했는가)
+
+//    private boolean is_rewarded; // 보상이 지급되었는지 여부
 }
