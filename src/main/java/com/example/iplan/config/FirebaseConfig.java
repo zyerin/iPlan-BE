@@ -23,7 +23,22 @@ public class FirebaseConfig {
      */
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream("src/main/resources/iplan-firebase.json");
+        String configPath;
+    
+        // Docker 환경에서는 환경 변수에서 경로를 읽고, 로컬 환경에서는 프로퍼티에서 읽는다.
+        if (System.getenv("FIREBASE_CONFIG_PATH") != null) {
+            // Docker 환경
+            configPath = System.getenv("FIREBASE_CONFIG_PATH");
+        } else {
+            // 로컬 환경
+            configPath = "src/main/resources/iplan-firebase.json";  // 로컬 파일 경로
+        }
+        
+        if (configPath == null) {
+            throw new IOException("Firebase config path is not set.");
+        }
+    
+        FileInputStream serviceAccount = new FileInputStream(configPath);
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
