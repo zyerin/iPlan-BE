@@ -33,9 +33,14 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    # 환경 변수 설정
+    - name: Set environment variable for Firebase config
+      run: |
+        echo "FIREBASE_CONFIG_PATH=/app/iplan-firebase.json" >> $GITHUB_ENV
+
     # 2. Spring Boot 애플리케이션 빌드
     - name: Build with Gradle
-      run: ./gradlew assemble --no-daemon --warning-mode all
+      run: ./gradlew clean bootJar --no-daemon --warning-mode all
 
     # 3. Docker 이미지 빌드
     - name: docker image build
