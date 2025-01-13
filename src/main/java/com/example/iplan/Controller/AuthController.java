@@ -3,6 +3,7 @@ package com.example.iplan.Controller;
 import com.example.iplan.Domain.UserSocial;
 import com.example.iplan.Service.UserAuthSocialService;
 import com.google.firebase.auth.FirebaseAuthException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 // 구글 소셜 로그인: /api/auth/google
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -24,11 +26,6 @@ public class AuthController {
      * @return 성공 메시지와 사용자 정보
      */
     private final UserAuthSocialService authService;
-
-    @Autowired
-    public AuthController(UserAuthSocialService authService) {
-        this.authService = authService;
-    }
 
     @PostMapping("/google")
     public String verifyIdToken(@RequestBody Map<String, String> requestBody) {
