@@ -65,11 +65,15 @@ public class ScreenTimeService {
             // 해당 날짜에 설정해둔 목표 시간에 달성했을 때, 결과물을 담아서 보낸다.
             // 실패시 파일을 삭제하고, 상황에 맞게 오류 발송
             if(!IsAchieveUsingTime(user_id, filteredTexts, response)){
+                LocalDate today = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String todayToString = today.format(formatter);
 
                 ScreenTimeOCRResult result = ScreenTimeOCRResult.builder()
                                 .id(user_id)
-                                .date(LocalDate.now())
+                                .date(todayToString)
                                 .result(filteredTexts)
+                                .isSuccess(true)
                                 .build();
 
                 getScreenTimeOCRRepository.save(result);
