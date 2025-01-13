@@ -88,7 +88,7 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
                 .user_id(rewardChild.getUser_id())
                 .content(rewardChild.getContent())
                 .date(rewardChild.getDate())
-                .is_rewarded(rewardChild.is_rewarded())
+                .rewarded(rewardChild.isRewarded())
                 .build();
     }
 }
