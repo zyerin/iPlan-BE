@@ -24,6 +24,9 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.15'
 	implementation 'com.google.cloud:google-cloud-vision:3.34.0'
 	implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.2.0'
