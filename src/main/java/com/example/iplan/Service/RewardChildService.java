@@ -3,6 +3,7 @@ package com.example.iplan.Service;
 import com.example.iplan.DTO.RewardChildDTO;
 import com.example.iplan.Domain.RewardChild;
 import com.example.iplan.Domain.RewardParents;
+import com.example.iplan.ExceptionHandler.CustomException;
 import com.example.iplan.Repository.RewardChildRepository;
 import com.example.iplan.Repository.RewardParentsRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,9 +52,7 @@ public class RewardChildService {
             response.put("message", "보상이 정상적으로 저장되었습니다.");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "보상 저장에 실패했습니다. Error: " + e);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("보상 저장에 실패했습니다. Error: " + e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -86,16 +85,12 @@ public class RewardChildService {
             // 해당 ID의 보상을 조회
             RewardChild reward = rewardRepository.findEntityByDocumentId(documentID);
             if (reward == null) {
-                response.put("success", false);
-                response.put("message", "해당 ID의 보상을 찾을 수 없습니다.");
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+                throw new CustomException("해당 ID의 보상을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
             }
 
             // 보상이 이미 지급된 경우 (is_rewarded 가 true) 삭제를 허용하지 않음
             if (reward.isRewarded()) {
-                response.put("success", false);
-                response.put("message", "해당 보상은 이미 지급되어 삭제할 수 없습니다.");
-                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+                throw new CustomException("해당 보상은 이미 지급되어 삭제할 수 없습니다.", HttpStatus.FORBIDDEN);
             }
 
             // 지급되지 않은 보상만 삭제 허용
@@ -105,9 +100,7 @@ public class RewardChildService {
             response.put("message", "보상이 정상적으로 삭제되었습니다.");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "보상 삭제에 실패했습니다. Error: " + e);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("보상 삭제에 실패했습니다. Error: " + e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -125,9 +118,7 @@ public class RewardChildService {
         RewardChild existingReward = rewardRepository.findEntityByDocumentId(rewardDto.getId());
 
         if (existingReward == null) {
-            response.put("success", false);
-            response.put("message", "해당 ID의 보상을 찾을 수 없습니다.");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            throw new CustomException("해당 ID의 보상을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         }
 
         // RewardParents에서 같은 plan_id를 가진 문서를 찾는다.
@@ -136,9 +127,7 @@ public class RewardChildService {
         // 같은 plan_id를 가진 RewardParents 중에서 is_rewarded가 true인 경우 수정할 수 없다.
         boolean isAnyRewarded = rewardParentsList.stream().anyMatch(RewardParents::isRewarded);
         if (isAnyRewarded) {
-            response.put("success", false);
-            response.put("message", "해당 계획에 대한 부모님의 보상이 이미 지급되어 수정할 수 없습니다.");
-            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            throw new CustomException("해당 계획에 대한 부모님의 보상이 이미 지급되어 수정할 수 없습니다.", HttpStatus.FORBIDDEN);
         }
 
         // 빌더 패턴을 사용하여 새롭게 RewardChild 객체를 생성하고 업데이트
@@ -157,9 +146,7 @@ public class RewardChildService {
             response.put("message", "보상이 정상적으로 수정되었습니다.");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "보상 수정에 실패했습니다. Error: " + e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("보상 수정에 실패했습니다. Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
