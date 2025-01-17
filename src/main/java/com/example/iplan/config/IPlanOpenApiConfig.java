@@ -7,10 +7,10 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.SpringDocUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
-@RequiredArgsConstructor
 @Configuration
 public class IPlanOpenApiConfig {
 
@@ -19,6 +19,7 @@ public class IPlanOpenApiConfig {
         SpringDocUtils.getConfig().addAnnotationsToIgnore(AuthenticationPrincipal.class);
     }
 
+    @Bean
     public OpenAPI openAPI(){
 
         Info info = new Info()

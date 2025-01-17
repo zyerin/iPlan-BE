@@ -1,8 +1,10 @@
 package com.example.iplan.Service;
 
 import com.example.iplan.DTO.PlanChildDTO;
+import com.example.iplan.DTO.ScreenTimeDTO;
 import com.example.iplan.Domain.PlanChild;
 import com.example.iplan.Domain.ScreenTime;
+import com.example.iplan.ExceptionHandler.CustomException;
 import com.example.iplan.Repository.PlanChildRepository;
 import com.example.iplan.Repository.SetScreenTimeRepository;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -11,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ public class PlanChildService {
 
     private final PlanChildRepository planChildRepository;
     private final SetScreenTimeRepository setScreenTimeRepository;
+    private final DayDataService dayDataService;
 
     /**
      * 새로운 계획을 추가하는 기능
@@ -52,13 +54,14 @@ public class PlanChildService {
             planChildRepository.save(planPost);
             response.put("success", true);
             response.put("message", "계획이 정상적으로 추가되었습니다.");
+            response.put("entity", planPost.getId());
+
+            response = dayDataService.GenerateOrSaveDayPlanData(response, planPost, user_id);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         else
         {
-            response.put("success", false);
-            response.put("message", "유저 아이디가 올바르지 않습니다.");
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("유저 아이디가 올바르지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -71,27 +74,48 @@ public class PlanChildService {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<PlanChildDTO> findAllPlanList(String user_id, @JsonFormat(pattern = "yyyy-MM-dd") String targetDate) throws ExecutionException, InterruptedException {
+    public Map<String, Object> findAllPlanList(String user_id, @JsonFormat(pattern = "yyyy-MM-dd") String targetDate) throws ExecutionException, InterruptedException {
+        Map<String, Object> response = new HashMap<>();
         List<PlanChild> planEntityList = planChildRepository.findByDate(user_id, targetDate);
 
-        ArrayList<PlanChildDTO> planDtoList = new ArrayList<>();
+        List<PlanChildDTO> planDtoList = new ArrayList<>();
 
-        for(PlanChild plan : planEntityList){
-            PlanChildDTO planDto = PlanChildDTO.builder()
-                    .id(plan.getId())
-                    .title(plan.getTitle())
-                    .is_completed(plan.is_completed())
-                    .build();
+        try{
+            if(!planEntityList.isEmpty()){
+                for(PlanChild plan : planEntityList){
+                    PlanChildDTO planDto = PlanChildDTO.builder()
+                            .id(plan.getId())
+                            .user_id(plan.getUser_id())
+                            .title(plan.getTitle())
+                            .post_date(targetDate)
+                            .is_completed(plan.is_completed())
+                            .build();
 
-            planDtoList.add(planDto);
+                    planDtoList.add(planDto);
+                }
+            }
+        }catch(Exception e){
+            throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return planDtoList;
+        response.put("success", true);
+        response.put("message", targetDate+" 의 계획 리스트를 불러오는데 성공했습니다.");
+        response.put("entity", planDtoList);
+        return response;
     }
 
-    public PlanChild findByPlanID(String documentID) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> findByPlanID(String documentID) throws ExecutionException, InterruptedException {
+        Map<String, Object> response = new HashMap<>();
 
-        return planChildRepository.findEntityByDocumentId(documentID);
+        PlanChild planChild = planChildRepository.findEntityByDocumentId(documentID);
+        if(planChild == null){
+            throw new CustomException("해당 ID의 PlanChild문서가 없습니다.", HttpStatus.NOT_FOUND);
+        }
+
+        response.put("success", true);
+        response.put("message", "해당 ID PlanChild문서 찾는데 성공했습니다.");
+        response.put("entity", planChild);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -108,11 +132,13 @@ public class PlanChildService {
 
         PlanChild originalPlan = planChildRepository.findEntityByDocumentId(planChildDTO.getId());
 
+        if(originalPlan == null){
+            throw new CustomException("해당 Id의 PlanChild문서가 없습니다.", HttpStatus.NOT_FOUND);
+        }
+
         if(!Objects.equals(originalPlan.getUser_id(), user_id))
         {
-            response.put("success", false);
-            response.put("message", "해당 계획과 사용자가 일치하지 않습니다.");
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("해당 계획과 사용자가 일치하지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         updateIfNotNull(planChildDTO.getTitle(), originalPlan::setTitle);
@@ -125,9 +151,7 @@ public class PlanChildService {
             planChildRepository.update(originalPlan);
         }
         catch (Exception e){
-            response.put("success", false);
-            response.put("message", "계획 업데이트에 실패했습니다. Error: "+ e);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("계획 업데이트에 실패했습니다. Error: "+ e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.put("success", true);
@@ -135,17 +159,16 @@ public class PlanChildService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public ResponseEntity<Map<String, Object>> DeletePlan(String document_id) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> DeletePlan(String document_id) {
         Map<String, Object> response = new HashMap<>();
 
         try{
             PlanChild plan = planChildRepository.findEntityByDocumentId(document_id);
+            if(plan == null) throw new CustomException("해당 Id의 PlanChild문서가 없습니다.", HttpStatus.NOT_FOUND);
             planChildRepository.delete(plan);
         }
         catch (Exception e){
-            response.put("success", false);
-            response.put("message", "계획 삭제에 실패했습니다. Error: "+ e);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("계획 삭제에 실패했습니다. Error: "+ e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.put("success", true);
@@ -156,23 +179,29 @@ public class PlanChildService {
 
     /**
      * 사용자가 목표 스크린타임을 설정한다
-     * @param screenTime
+     * @param screenTimeDTO
      * @return
      */
-    public ResponseEntity<Map<String, Object>> SetScreenTime(ScreenTime screenTime){
+    public ResponseEntity<Map<String, Object>> SetScreenTime(ScreenTimeDTO screenTimeDTO, String uid){
         Map<String, Object> response = new HashMap<>();
 
+        ScreenTime newScreenTime = ScreenTime.builder()
+                .user_id(uid)
+                .date(screenTimeDTO.getDate())
+                .deadLineTime(screenTimeDTO.getDeadLineTime())
+                .goalTime(screenTimeDTO.getGoalTime())
+                .build();
+
         try{
-            setScreenTimeRepository.save(screenTime);
+            setScreenTimeRepository.save(newScreenTime);
         }
         catch(Exception e){
-            response.put("success", false);
-            response.put("message", "스크린 타임 설정에 실패했습니다. Error: "+ e);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("스크린 타임 설정에 실패했습니다. Error: "+ e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         response.put("success", true);
         response.put("message", "스크린 타임 정상적으로 설정 되었습니다");
+        response.put("entity", newScreenTime);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

@@ -3,12 +3,15 @@ package com.example.iplan.Service;
 import com.example.iplan.DTO.DayDataDTO;
 import com.example.iplan.DTO.PlanChildDTO;
 import com.example.iplan.Domain.DayData;
+import com.example.iplan.Domain.RewardChild;
 import com.example.iplan.Domain.ScreenTimeOCRResult;
+import com.example.iplan.ExceptionHandler.CustomException;
 import com.example.iplan.Repository.DayDataRepository;
 import com.example.iplan.Repository.GetScreenTimeOCRRepository;
-import com.example.iplan.Repository.PlanChildRepository;
-import com.google.api.Http;
+import com.example.iplan.Repository.RewardChildRepository;
+import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 public class CalendarService {
 
     private final DayDataRepository dayDataRepository;
+    private final RewardChildRepository rewardChildRepository;
     private final PlanChildService planChildService;
     private final GetScreenTimeOCRRepository getScreenTimeOCRRepository;
 
@@ -33,13 +37,12 @@ public class CalendarService {
         try{
             dayDataDTOList = dayDataRepository.findTargetMonthData(user_id, yearMonth);
         }catch(Exception e){
-            CatchException(response, e);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
         response.put("success", true);
-        response.put("message", "해당 달의 데이터 가져오기에 성공하였습니다");
         response.put("entity", dayDataDTOList);
+        response.put("message", "해당 달의 데이터 가져오기에 성공하였습니다");
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -50,34 +53,40 @@ public class CalendarService {
 
         try{
             dayData = dayDataRepository.findTargetDayData(user_id, yearMonthDate);
-        }catch (Exception e){
-            CatchException(response, e);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-        String targetDate = dayData.getYear()+"-"+dayData.getMonth()+"-"+dayData.getDate();
-        ScreenTimeOCRResult screenTimeOCRResult= getScreenTimeOCRRepository.findByDate(user_id, targetDate);
-        List<PlanChildDTO> planChildDTOList = planChildService.findAllPlanList(user_id, targetDate);
 
-        boolean allPlanSuccess = false;
-        if(!planChildDTOList.isEmpty()){
-            for(var dto : planChildDTOList){
-                if (!dto.is_completed()) {
-                    break;
-                }
+            if(dayData == null){
+                response.put("success", true);
+                response.put("message", "해당 날짜는 아직 아무 데이터가 없습니다");
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
-            allPlanSuccess = true;
+        }catch (Exception e){
+            throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        boolean screenTimeSuccess = false;
-        if(screenTimeOCRResult != null){
-            screenTimeSuccess = screenTimeOCRResult.isSuccess();
+        ScreenTimeOCRResult screenTimeOCRResult= getScreenTimeOCRRepository.findByDate(user_id, yearMonthDate);
+        Map<String, Object> PlanListResponse = planChildService.findAllPlanList(user_id, yearMonthDate);
+        List<PlanChildDTO> planChildDTOList = new ArrayList<>();
+        if (PlanListResponse.get("entity") instanceof List<?> list) {
+            if (!list.isEmpty() && list.get(0) instanceof PlanChildDTO) {
+                planChildDTOList = (List<PlanChildDTO>) list;
+            }
         }
+
+        boolean screenTimeSuccess = screenTimeOCRResult != null && screenTimeOCRResult.isSuccess();
+
+        RewardChild rewardChild = rewardChildRepository.findRewardChildByDay(user_id, yearMonthDate);
+        boolean rewardedSuccess = rewardChild != null && rewardChild.isSuccess();
+        String rewardContent = rewardChild != null ? rewardChild.getContent() : StringUtils.EMPTY;
 
         DayDataDTO dayDataDTO = DayDataDTO.builder()
                 .id(dayData.getId())
+                .user_id(user_id)
+                .date(yearMonthDate)
+                .day(yearMonthDate.split("-")[2])
                 .planChildDTOList(planChildDTOList)
                 .screenTime_goal(screenTimeSuccess)
-                .reach_goal(allPlanSuccess)
+                .reward_content(rewardContent)
+                .is_reward(rewardedSuccess)
                 .build();
 
         response.put("success", true);
@@ -85,10 +94,5 @@ public class CalendarService {
         response.put("message", "특정 날짜 데이터 가져오기 성공");
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private void CatchException(Map<String, Object> response, Exception e){
-        response.put("success", false);
-        response.put("message", e.getMessage());
     }
 }

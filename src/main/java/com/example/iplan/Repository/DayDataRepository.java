@@ -40,7 +40,10 @@ public class DayDataRepository extends DefaultFirebaseDBRepository<DayData> {
         for (DayData dayDatum : dayData) {
             DayDataDTO dataDTO = DayDataDTO.builder()
                     .id(dayDatum.getId())
-                    .reach_goal(dayDatum.isReachGoal())
+                    .user_id(dayDatum.getUser_id())
+                    .date(yearMonth + "-" + dayDatum.getDate())
+                    .day(dayDatum.getDate())
+                    .is_reward(dayDatum.getIs_rewarded())
                     .build();
 
             dayDataDTOS.add(dataDTO);
