@@ -15,3 +15,5 @@ COPY ./src/main/resources/iplan-firebase.json /app/iplan-firebase.json
 
 # 실행 명령어
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENV FIREBASE_CONFIG_PATH=/app/iplan-firebase.json

@@ -19,6 +19,15 @@ public class RewardChildDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private String date; // 보상이 적용된 날짜
 
+    @JsonFormat(pattern = "yyyy")
+    private String year;
+
+    @JsonFormat(pattern = "MM")
+    private String month;
+
+    @JsonFormat(pattern = "dd")
+    private String day;
+
     private String plan_id; // 보상을 지급할 plan
 
     private boolean rewarded; // 보상이 지급되었는지 여부

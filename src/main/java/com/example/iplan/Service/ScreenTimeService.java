@@ -1,10 +1,12 @@
 package com.example.iplan.Service;
 
 import com.example.iplan.Domain.ScreenTimeOCRResult;
+import com.example.iplan.ExceptionHandler.CustomException;
 import com.example.iplan.Repository.GetScreenTimeOCRRepository;
 import com.example.iplan.Repository.SetScreenTimeRepository;
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
+import com.google.type.DateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,24 +67,23 @@ public class ScreenTimeService {
             // 해당 날짜에 설정해둔 목표 시간에 달성했을 때, 결과물을 담아서 보낸다.
             // 실패시 파일을 삭제하고, 상황에 맞게 오류 발송
             if(!IsAchieveUsingTime(user_id, filteredTexts, response)){
+                LocalDate today = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String todayToString = today.format(formatter);
 
                 ScreenTimeOCRResult result = ScreenTimeOCRResult.builder()
                                 .id(user_id)
-                                .date(LocalDate.now())
+                                .date(todayToString)
                                 .result(filteredTexts)
+                                .isSuccess(true)
                                 .build();
 
                 getScreenTimeOCRRepository.save(result);
                 Files.delete(filePath);
-            }else{
-                if(response.containsKey("error")){
-                    return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
             }
         }else{
-            response.put("success", false);
-            response.put("message", "파일 생성 시간이 유효하지 않습니다.");
             Files.delete(filePath);
+            throw new CustomException("파일 생성 시간이 유효하지 않습니다.", HttpStatus.OK);
         }
 
         Files.delete(filePath);
@@ -169,27 +170,21 @@ public class ScreenTimeService {
     }
 
     private boolean IsAchieveUsingTime(String user_id, Map<String, Object> filteredTexts, Map<String, Object> response) throws ExecutionException, InterruptedException {
-        if(filteredTexts.get("mainTime") instanceof Duration){
-            Pattern timePattern = Pattern.compile("(\\d+)시간 (\\d+)분");
-            Matcher mainTimeMatcher = timePattern.matcher(filteredTexts.get("mainTime").toString());
+        LocalTime mainTime = LocalTime.parse(filteredTexts.get("mainTime").toString(), DateTimeFormatter.ofPattern("HH:mm"));
+        Duration mainTimeDuration = Duration.between(LocalTime.MIDNIGHT, mainTime);
 
-            String uploadDuration = TimeFormatter(mainTimeMatcher);
-            String goalTime = setScreenTimeRepository.findByDate(user_id, LocalDate.now().toString()).getGoalTime();
+        String goalTimeString = setScreenTimeRepository.findByDate(user_id, LocalDate.now().toString()).getGoalTime();
+        LocalTime goalTime = LocalTime.parse(goalTimeString, DateTimeFormatter.ofPattern("HH:mm"));
+        Duration goalTimeDuration = Duration.between(LocalTime.MIDNIGHT, goalTime);
 
-            if(uploadDuration.compareTo(goalTime) >= 0){
-                response.put("entity", filteredTexts);
-                response.put("success", true);
-                response.put("message", "목표 시간 달성에 성공하였습니다.");
-                return true;
-            }else{
-                response.put("success", false);
-                response.put("message", "목표 시간 달성에 실패하였습니다.");
-                return false;
-            }
+        if(mainTimeDuration.compareTo(goalTimeDuration) >= 0){
+            response.put("entity", filteredTexts);
+            response.put("success", true);
+            response.put("message", "목표 시간 달성에 성공하였습니다.");
+            return true;
+        }else{
+            throw new CustomException("목표 시간 달성에 실패하였습니다.", HttpStatus.OK);
         }
-
-        response.put("message", "mainTime이 Duration 타입이 아닙니다.");
-        return false;
     }
 
     private String DateFormatter(Matcher dateMatcher){

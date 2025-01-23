@@ -2,14 +2,17 @@ package com.example.iplan.Repository.DefaultFirebaseRepository;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.cloud.firestore.annotation.DocumentId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Component
@@ -35,9 +38,34 @@ public class DefaultFirebaseDBRepository<T> implements FirebaseDBRepository<T, S
     // Entity 저장 메서드
     @Override
     public void save(T entity) throws ExecutionException, InterruptedException {
+        // 1. Firestore 컬렉션 참조 가져오기
         CollectionReference collection = firestore.collection(collectionName);
-        ApiFuture<DocumentReference> result = collection.add(entity);
-        result.get(); // 작성이 완료될때까지 Block
+
+        // 2. 고유 Document ID 생성
+        String documentId = UUID.randomUUID().toString();
+
+        // 3. Firestore에 데이터 저장
+        ApiFuture<WriteResult> result = collection.document(documentId).set(entity);
+        result.get(); // 저장이 완료될 때까지 대기
+
+        // 4. 엔티티의 @DocumentId 필드에 값 설정
+        setDocumentIdField(entity, documentId);
+    }
+
+    // @DocumentId 필드에 ID를 설정하는 헬퍼 메서드
+    private void setDocumentIdField(T entity, String documentId) {
+        Field[] fields = entity.getClass().getDeclaredFields(); // 엔티티 클래스의 모든 필드 가져오기
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(DocumentId.class)) { // @DocumentId 애노테이션이 있는지 확인
+                field.setAccessible(true); // private 필드에 접근 가능하도록 설정
+                try {
+                    field.set(entity, documentId); // @DocumentId 필드에 값 설정
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Failed to set @DocumentId field", e);
+                }
+                break; // 첫 번째 @DocumentId 필드만 처리
+            }
+        }
     }
 
     // Entity 업데이트 메서드

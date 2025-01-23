@@ -1,5 +1,6 @@
 package com.example.iplan.Domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.cloud.firestore.annotation.DocumentId;
 import lombok.*;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,10 @@ public class ScreenTimeOCRResult {
 
     private String user_id;
 
-    private LocalDate date;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private String date;
 
     private Map<String, Object> result;
+
+    private boolean isSuccess;
 }

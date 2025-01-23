@@ -29,6 +29,15 @@ public class RewardChild {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private String date; // 보상이 적용된 날짜
 
+    @JsonFormat(pattern = "yyyy")
+    private String year;
+
+    @JsonFormat(pattern = "MM")
+    private String month;
+
+    @JsonFormat(pattern = "dd")
+    private String day;
+
     @NotNull
     private String plan_id;  // 이 보상이 어떤 계획과 연관되어 있는지 나타냄
 

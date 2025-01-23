@@ -3,6 +3,7 @@ package com.example.iplan.Controller;
 import com.example.iplan.DTO.RewardParentsDTO;
 import com.example.iplan.Domain.RewardParents;
 import com.example.iplan.Service.RewardParentsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,15 +12,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/reward-parents")
 public class RewardParentsController {
 
     private final RewardParentsService rewardParentsService;
-
-    @Autowired
-    public RewardParentsController(RewardParentsService rewardParentsService) {
-        this.rewardParentsService = rewardParentsService;
-    }
 
     // 아이들이 설정한 보상 지급
     @PostMapping("/{childRewardId}")

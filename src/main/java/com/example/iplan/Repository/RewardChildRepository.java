@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Repository
@@ -46,23 +47,40 @@ public class RewardChildRepository extends DefaultFirebaseDBRepository<RewardChi
 
     /**
      * 특정 날짜와 일치하는 보상 목록을 반환
-     * @param targetDate 특정 날짜
+     * @param targetDate 특정 년도와 월("2025-01")
      * @return 해당 날짜의 보상 목록
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<RewardChildDTO> findRewardChildDtoByDate(String userId, String targetDate) throws ExecutionException, InterruptedException {
-        Firestore firestore = FirestoreClient.getFirestore();
-        CollectionReference collection = firestore.collection("RewardChild");
+    public List<RewardChild> findRewardChildDtoByDate(String userId, String targetDate) throws ExecutionException, InterruptedException {
+        String[] splitResult = targetDate.split("-");
 
-        ApiFuture<QuerySnapshot> apiFutureList = collection
-                .whereEqualTo("user_id", userId)
-                .whereEqualTo("date", targetDate)
-                .get();
+        Map<String, Object> filters = Map.of(
+                "user_id", userId,
+                "year", splitResult[0],
+                "month", splitResult[1]);
 
-        QuerySnapshot querySnapshot = apiFutureList.get();
 
-        return getRewardChildDTOS(querySnapshot);
+        return findAllByFields(filters);
+    }
+
+    /**
+     * 특정 날짜와 일치하는 보상 목록을 반환
+     * @param targetDate 특정 년도와 월("2025-01-11")
+     * @return 해당 날짜의 보상 목록
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public RewardChild findRewardChildByDay(String userId, String targetDate) throws ExecutionException, InterruptedException {
+        String[] splitResult = targetDate.split("-");
+
+        Map<String, Object> filters = Map.of(
+                "user_id", userId,
+                "year", splitResult[0],
+                "month", splitResult[1],
+                "day", splitResult[2]);
+
+        return findByFields(filters);
     }
 
     private List<RewardChildDTO> getRewardChildDTOS(QuerySnapshot querySnapshot) {
