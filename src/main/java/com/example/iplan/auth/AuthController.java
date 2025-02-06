@@ -1,8 +1,5 @@
-package com.example.iplan.Controller;
+package com.example.iplan.auth;
 
-import com.example.iplan.Domain.UserSocial;
-import com.example.iplan.Repository.UserSocialRepository;
-import com.example.iplan.Service.UserAuthSocialService;
 import com.google.firebase.auth.FirebaseAuthException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 @Tag(name = "구글 로그인 컨트롤러", description = "구글 로그인 토큰을 이용하여 Firebase Authorization을 통해 로그인한다.")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api/auth/social")
 public class AuthController {
 
 
