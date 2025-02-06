@@ -1,7 +1,5 @@
-package com.example.iplan.Service;
+package com.example.iplan.auth;
 
-import com.example.iplan.Domain.UserSocial;
-import com.example.iplan.Repository.UserSocialRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
