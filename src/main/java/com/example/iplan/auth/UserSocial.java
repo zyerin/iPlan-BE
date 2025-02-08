@@ -1,4 +1,4 @@
-package com.example.iplan.Domain;
+package com.example.iplan.auth;
 
 public class UserSocial {
     private String id; // Firebase Auth UID
