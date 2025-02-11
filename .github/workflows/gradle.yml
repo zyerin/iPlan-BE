@@ -41,8 +41,17 @@ jobs:
         run: |
           mkdir ./src/main/resources || true
           cd ./src/main/resources
-          rm -rf ./application.properties || true
+          rm -rf ./application.yml || true
           echo "${{ secrets.APPLICATION_YML }}" | base64 --decode  > ./application.yml
+        shell: bash
+
+      # application-oauth2.yml 생성
+      - name: Create application-oauth.yml
+        run: |
+          mkdir ./src/main/resources || true
+          cd ./src/main/resources
+          rm -rf ./application-oauth2.yml || true
+          echo "${{ secrets.APPLICATION_OAUTH2_YML }}" | base64 --decode > ./application-oauth.yml
         shell: bash
 
       # gradlew 권한 문제로 인한 권한 부여
