@@ -15,7 +15,7 @@ public class OAuth2UserInfo {
     private String email;
 
     /**
-     * OAuth2 로그인 후, 사용자 정보를 표준화하는 클래스
+     * OAuth2 로그인 후, 플랫폼별 사용자 정보를 추출하는 공통 클래스
      * OAuth2 제공업체에 따라 적절한 매핑 메서드를 호출하여 사용자 정보를 반환
      */
     public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes) {
