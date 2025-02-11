@@ -1,5 +1,7 @@
 package com.example.iplan.auth;
 
+import com.example.iplan.auth.DTO.SignInDTO;
+import com.example.iplan.auth.DTO.SignUpDTO;
 import com.example.iplan.config.jwt.JwtToken;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
