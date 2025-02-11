@@ -1,4 +1,4 @@
-package com.example.iplan.auth;
+package com.example.iplan.auth.DTO;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
