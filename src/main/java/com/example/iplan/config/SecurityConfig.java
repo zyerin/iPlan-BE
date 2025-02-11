@@ -1,10 +1,11 @@
 package com.example.iplan.config;
 
+import com.example.iplan.auth.oauth2.CustomOAuth2UserService;
 import com.example.iplan.config.jwt.JwtAuthenticationFilter;
-import com.example.iplan.config.jwt.JwtTokenFilter;
 import com.example.iplan.config.jwt.JwtTokenProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,14 +22,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig{
     private final JwtTokenProvider jwtTokenProvider;
     private final FirebaseAuth firebaseAuth;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -48,9 +49,10 @@ public class SecurityConfig{
 
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                // 로그인, 회원가입은 인증 없이 허용
+                                // 로그인, 회원가입, 소셜 로그인은 인증 없이 허용
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/login")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/auth/register")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/oauth2/**")).permitAll()
 
                                 // Swagger 및 API 문서 접근 허용
                                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
@@ -65,6 +67,15 @@ public class SecurityConfig{
                                 // 나머지 요청은 인증 필요
                                 .anyRequest().authenticated()
                 )
+                // OAuth2 로그인 후 JWT 발급 및 리다이렉트 처리
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler((request, response, authentication) -> {
+                            log.info("OAuth2 Login Successfully: " + authentication.getName());
+                            response.sendRedirect("http://localhost:8080/register");
+                        })
+                )
+
                 .logout(logout -> logout.disable());
 
         return http.build();
