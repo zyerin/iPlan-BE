@@ -1,5 +1,6 @@
 package com.example.iplan.Controller;
 
+import com.example.iplan.DTO.PlanChildDTO;
 import com.example.iplan.DTO.RewardChildDTO;
 import com.example.iplan.Domain.RewardChild;
 import com.example.iplan.Service.RewardChildService;
@@ -7,6 +8,11 @@ import com.example.iplan.auth.oauth2.CustomOAuth2UserDetails;
 import com.google.firebase.database.annotations.NotNull;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/reward-child")
+@Tag(name = "아이들 보상 관리 컨트롤러", description = "보상 추가, 삭제, 한 달간의 총 개수 등을 처리한다.")
 public class RewardChildController {
 
     private final RewardChildService rewardChildService;
@@ -35,7 +42,11 @@ public class RewardChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    @Operation(summary = "아이들-보상 추가(저장)", description = "아이들은 해당 날짜에 해당하는 보상을 작성하여 저장한다.")
+    @Operation(summary = "보상 추가 POST", description = "받고 싶은 보상을 입력(추가)한다.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = {
+                    @Content(schema = @Schema(implementation = RewardChildDTO.class))
+            }))
     @PostMapping
     @ResponseBody
     public ResponseEntity<Map<String, Object>> addReward(@RequestBody @NotNull RewardChildDTO rewardDto, @AuthenticationPrincipal String email) throws ExecutionException, InterruptedException {
@@ -51,9 +62,13 @@ public class RewardChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
+    @Operation(summary = "보상 엔티티 GET", description = "해당 ID의 보상 엔티티를 가져온다.",
+            parameters = {
+                    @Parameter(name = "documentID", description = "해당 보상 문서 Id", example = "xicv3412zz", required = true)
+            })
     @GetMapping("/{documentId}")
     @ResponseBody
-    public ResponseEntity<RewardChild> getReward(@PathVariable String documentId) throws ExecutionException, InterruptedException {
+    public ResponseEntity<RewardChild> getReward(@PathVariable @Parameter(example = "sdfg123") String documentId) throws ExecutionException, InterruptedException {
         RewardChild reward = rewardChildService.getReward(documentId);
         return ResponseEntity.ok(reward);
     }
@@ -65,6 +80,11 @@ public class RewardChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
+    @Operation(summary = "보상 수정 UPDATE", description = "보상 내용을 수정한다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = {
+                            @Content(schema = @Schema(implementation = RewardChildDTO.class))
+                    }))
     @PatchMapping()
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateReward(@AuthenticationPrincipal String user_id, @RequestBody @NotNull RewardChildDTO reward) throws ExecutionException, InterruptedException {
@@ -78,9 +98,13 @@ public class RewardChildController {
      * @throws ExecutionException
      * @throws InterruptedException
      */
+    @Operation(summary = "보상 엔티티 DELETE", description = "해당 ID의 보상 엔티티를 삭제한다.",
+            parameters = {
+                    @Parameter(name = "documentID", description = "해당 보상 문서 Id", example = "xicv3412zz", required = true)
+            })
     @DeleteMapping("/{documentID}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteReward(@PathVariable String documentID) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> deleteReward(@PathVariable @Parameter(example = "slidfjil123") String documentID) throws ExecutionException, InterruptedException {
         return rewardChildService.deleteReward(documentID);
     }
 
@@ -91,11 +115,12 @@ public class RewardChildController {
      * @param month 해당 월 (1월은 1, 12월은 12)
      * @return 한 달간 작성한 총 보상의 개수
      */
+    @Operation(summary = "한 달간 보상 개수 GET", description = "한 달간 작성한 총 보상 개수를 가져온다.")
     @GetMapping("/monthly-total-rewards-count")
     public ResponseEntity<Map<String, Object>> countMonthlyTotalRewarded(
-            @RequestParam String user_id,
-            @RequestParam int year,
-            @RequestParam int month) {
+            @Parameter @RequestParam(name = "user_id") String user_id,
+            @Parameter @RequestParam(name = "year") int year,
+            @Parameter @RequestParam(name = "month") int month) {
         Map<String, Object> response = new HashMap<>();
         try {
             int rewardCount = rewardChildService.countMonthlyTotalRewarded(user_id, year, month);
