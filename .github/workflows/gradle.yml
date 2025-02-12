@@ -19,7 +19,7 @@ on:
 jobs:
   # Spring boot 애플리케이션을 빌드하여 도커 허브에 푸시하는 과정
   build:
-    if: github.event.pull_request.merged == true
+#    if: github.event.pull_request.merged == true
     name: Build, Push, and Deploy
     runs-on: ubuntu-latest
 
