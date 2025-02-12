@@ -4,6 +4,7 @@ import com.example.iplan.DTO.PlanChildDTO;
 import com.example.iplan.DTO.RewardChildDTO;
 import com.example.iplan.Domain.RewardChild;
 import com.example.iplan.Service.RewardChildService;
+import com.example.iplan.auth.oauth2.CustomOAuth2UserDetails;
 import com.google.firebase.database.annotations.NotNull;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/reward-child")
@@ -34,7 +37,7 @@ public class RewardChildController {
 
     /**
      * 보상을 추가(저장)
-     * @param reward Reward 객체
+     * @param rewardDto Reward 객체
      * @return 성공 여부 및 오류 메시지
      * @throws ExecutionException
      * @throws InterruptedException
@@ -46,8 +49,10 @@ public class RewardChildController {
             }))
     @PostMapping
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> addReward(@RequestBody @NotNull RewardChildDTO reward) throws ExecutionException, InterruptedException {
-        return rewardChildService.saveReward(reward);
+    public ResponseEntity<Map<String, Object>> addReward(@RequestBody @NotNull RewardChildDTO rewardDto, @AuthenticationPrincipal String email) throws ExecutionException, InterruptedException {
+        log.info("Received RewardChildDTO: {}, AuthenticationPrincipal email: {}", rewardDto, email);
+
+        return rewardChildService.saveReward(rewardDto, email);
     }
 
     /**
